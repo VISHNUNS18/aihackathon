@@ -9,60 +9,113 @@ import ConversationThread from '@/components/ticket/ConversationThread';
 import WorkflowPanel from '@/components/workflow/WorkflowPanel';
 import StripePanel from '@/components/stripe/StripePanel';
 import AccountSnapshot from '@/components/account/AccountSnapshot';
-import { Zap, CreditCard, User } from 'lucide-react';
+import { Zap, CreditCard, User, ChevronsLeft, ChevronsRight, MessageSquare } from 'lucide-react';
 
 type RightTab = 'workflow' | 'account' | 'stripe';
+type ConvSize = 'compact' | 'expanded' | 'collapsed';
+
+const CONV_WIDTH: Record<ConvSize, string> = {
+  collapsed: 'w-10',
+  compact:   'w-[30%]',
+  expanded:  'w-[48%]',
+};
 
 export default function TicketDesk() {
   const { ticketId: paramId } = useParams();
   const { run } = useWorkflow();
   const { bundle, account, stripe } = useWorkflowStore();
   const [rightTab, setRightTab] = useState<RightTab>('workflow');
+  const [convSize, setConvSize] = useState<ConvSize>('compact');
 
   useEffect(() => { if (paramId) run(paramId); }, [paramId]);
 
   const tabs: { key: RightTab; label: string; icon: React.ReactNode; show: boolean }[] = [
-    { key: 'workflow', label: 'AI Workflow',    icon: <Zap className="w-3 h-3" />,        show: true },
-    { key: 'account',  label: 'Account',        icon: <User className="w-3 h-3" />,        show: !!account },
-    { key: 'stripe',   label: 'Billing',        icon: <CreditCard className="w-3 h-3" />, show: !!stripe },
+    { key: 'workflow', label: 'AI Analysis',  icon: <Zap className="w-3 h-3" />,        show: true },
+    { key: 'account',  label: 'Account',      icon: <User className="w-3 h-3" />,        show: !!account },
+    { key: 'stripe',   label: 'Billing',      icon: <CreditCard className="w-3 h-3" />, show: !!stripe },
   ];
 
-  return (
-    <div className="h-full flex flex-col overflow-hidden">
+  const cycleConvSize = () => {
+    setConvSize((s) =>
+      s === 'collapsed' ? 'compact' : s === 'compact' ? 'expanded' : 'collapsed'
+    );
+  };
 
-      {/* ── Top bar — fixed, no scroll ─────────────────────────── */}
-      <div className="flex-shrink-0 px-4 pt-3 pb-2.5 space-y-2.5 border-b border-gray-100 bg-gray-50">
+  return (
+    <div className="h-full flex flex-col overflow-hidden bg-gray-50">
+
+      {/* ── Top bar ──────────────────────────────────────────────── */}
+      <div className="flex-shrink-0 px-4 pt-3 pb-2.5 space-y-2.5 border-b border-gray-200 bg-white shadow-sm">
         <TicketLoader />
         <SkillsPipeline />
       </div>
 
-      {/* ── Split pane — fills remaining height ────────────────── */}
+      {/* ── Body ─────────────────────────────────────────────────── */}
       {bundle ? (
-        <div className="flex-1 min-h-0 grid grid-cols-[1fr_420px] divide-x divide-gray-100">
+        <div className="flex-1 min-h-0 flex overflow-hidden">
 
-          {/* LEFT — ticket info + conversation */}
-          <div className="flex flex-col min-h-0 overflow-hidden">
-            {/* Ticket header — sticky */}
-            <div className="flex-shrink-0 px-4 py-3 border-b border-gray-100">
-              <TicketHeader bundle={bundle} />
+          {/* ── LEFT — Conversation ──────────────────────────────── */}
+          <div
+            className={`flex-shrink-0 flex flex-col min-h-0 border-r border-gray-200 bg-white transition-all duration-300 ${CONV_WIDTH[convSize]}`}
+          >
+            {/* Conversation header */}
+            <div className="flex-shrink-0 flex items-center justify-between px-3 py-2.5 border-b border-gray-100 bg-gray-50">
+              {convSize !== 'collapsed' && (
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <MessageSquare className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                  <span className="text-xs font-semibold text-gray-500 truncate">Conversation</span>
+                </div>
+              )}
+              <button
+                onClick={cycleConvSize}
+                title={convSize === 'collapsed' ? 'Expand' : convSize === 'compact' ? 'Expand more' : 'Collapse'}
+                className="ml-auto flex-shrink-0 p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
+              >
+                {convSize === 'collapsed'
+                  ? <ChevronsRight className="w-3.5 h-3.5" />
+                  : convSize === 'expanded'
+                  ? <ChevronsLeft className="w-3.5 h-3.5" />
+                  : <ChevronsRight className="w-3.5 h-3.5" />}
+              </button>
             </div>
-            {/* Conversation — scrolls */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3">
-              <ConversationThread />
-            </div>
+
+            {/* Ticket header + messages */}
+            {convSize !== 'collapsed' && (
+              <>
+                <div className="flex-shrink-0 px-3 py-2.5 border-b border-gray-100">
+                  <TicketHeader bundle={bundle} />
+                </div>
+                <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3">
+                  <ConversationThread />
+                </div>
+              </>
+            )}
+
+            {/* Collapsed strip — just ticket ID */}
+            {convSize === 'collapsed' && (
+              <div className="flex-1 flex items-start justify-center pt-4">
+                <span
+                  className="text-[10px] font-mono text-gray-400 writing-vertical"
+                  style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.05em' }}
+                >
+                  #{bundle.ticket?.id ?? '—'}
+                </span>
+              </div>
+            )}
           </div>
 
-          {/* RIGHT — tabbed workflow / account / stripe */}
-          <div className="flex flex-col min-h-0 overflow-hidden bg-white">
-            {/* Tab bar — sticky */}
-            <div className="flex-shrink-0 flex items-center gap-1 px-3 py-2 border-b border-gray-100">
+          {/* ── RIGHT — AI Analysis (majority) ───────────────────── */}
+          <div className="flex-1 min-w-0 flex flex-col min-h-0 bg-gray-50">
+
+            {/* Tab bar */}
+            <div className="flex-shrink-0 flex items-center gap-1 px-4 py-2 border-b border-gray-200 bg-white">
               {tabs.filter((t) => t.show).map((t) => (
                 <button
                   key={t.key}
                   onClick={() => setRightTab(t.key)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                     rightTab === t.key
-                      ? 'bg-brand text-white'
+                      ? 'bg-brand text-white shadow-sm'
                       : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
                   }`}
                 >
@@ -72,37 +125,40 @@ export default function TicketDesk() {
               ))}
             </div>
 
-            {/* Tab content — scrolls */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-3">
+            {/* Tab content */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
               {rightTab === 'workflow' && <WorkflowPanel />}
               {rightTab === 'account'  && account && <AccountSnapshot account={account} />}
               {rightTab === 'stripe'   && <StripePanel />}
             </div>
           </div>
+
         </div>
 
       ) : (
-        /* ── Empty state ──────────────────────────────────────── */
-        <div className="flex-1 min-h-0 grid grid-cols-[1fr_420px] divide-x divide-gray-100">
-          <div className="flex items-center justify-center p-8">
-            <div className="text-center">
-              <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Zap className="w-5 h-5 text-brand" />
-              </div>
-              <p className="text-sm font-medium text-gray-600">Load a ticket to start the AI workflow</p>
-              <p className="text-xs text-gray-400 mt-1">Enter a Zendesk ID or pick a demo scenario above</p>
+        /* ── Empty state ───────────────────────────────────────── */
+        <div className="flex-1 min-h-0 flex overflow-hidden">
+
+          {/* Placeholder conversation column */}
+          <div className="w-[30%] flex-shrink-0 border-r border-gray-200 bg-white flex items-center justify-center">
+            <div className="text-center px-6">
+              <MessageSquare className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+              <p className="text-xs text-gray-400">Conversation will appear here</p>
             </div>
           </div>
-          <div className="bg-white flex flex-col min-h-0">
-            <div className="flex-shrink-0 flex items-center gap-1 px-3 py-2 border-b border-gray-100">
-              <span className="text-xs px-3 py-1.5 bg-brand text-white rounded-lg font-medium flex items-center gap-1.5">
-                <Zap className="w-3 h-3" /> AI Workflow
+
+          {/* Main empty state */}
+          <div className="flex-1 flex flex-col min-h-0 bg-gray-50">
+            <div className="flex-shrink-0 flex items-center gap-1 px-4 py-2 border-b border-gray-200 bg-white">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-brand text-white rounded-lg shadow-sm">
+                <Zap className="w-3 h-3" /> AI Analysis
               </span>
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto p-3">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4">
               <WorkflowPanel />
             </div>
           </div>
+
         </div>
       )}
     </div>

@@ -445,6 +445,146 @@ const DEMO_TICKETS: Record<string, unknown> = {
     ],
   },
 
+  // ── #12360 — Technical: Shopify + heavy analytics stack (Wappalyzer demo) ─
+  '12360': {
+    ticket: {
+      id: 12360,
+      subject: 'Banner not blocking analytics — GDPR concern',
+      description: 'We have GA4, Hotjar and Meta Pixel running. CookieYes does not seem to block them before consent.',
+      status: 'open', priority: 'high',
+      tags: ['banner', 'analytics', 'gdpr', 'auto-block', 'shopify'],
+      channel: 'web',
+      created_at: daysAgo(1), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9060, assignee_id: null, organization_id: 3060,
+    },
+    requester: {
+      id: 9060, name: 'Nina Patel', email: 'hello@myshop.io',
+      tickets_count: 2, organization: 'MyShop', created_at: daysAgo(90),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6001, index: 1, is_agent: false,
+        author_id: 9060, author_name: 'Nina Patel',
+        body: '<p>Hi, we run a Shopify store and recently added CookieYes. We have Google Analytics 4, Hotjar, Meta Pixel and Klaviyo installed via GTM. Even after declining cookies, I can see these trackers firing in the network tab. Is auto-block supposed to stop these? GDPR compliance is critical for us as we sell to EU customers.</p>',
+        plain_body: 'Hi, we run a Shopify store and recently added CookieYes. We have Google Analytics 4, Hotjar, Meta Pixel and Klaviyo installed via GTM. Even after declining cookies, I can see these trackers firing in the network tab. Is auto-block supposed to stop these? GDPR compliance is critical for us as we sell to EU customers.',
+        created_at: daysAgo(1), attachments: [], via: { channel: 'web' },
+      },
+    ],
+  },
+
+  // ── #12361 — Technical: Next.js SaaS, GCM + Segment setup (Wappalyzer demo)
+  '12361': {
+    ticket: {
+      id: 12361,
+      subject: 'How to configure GCM with Segment and HubSpot?',
+      description: 'We use Next.js with Segment and HubSpot. Need to set up Google Consent Mode properly.',
+      status: 'open', priority: 'normal',
+      tags: ['gcm', 'gtm', 'technical', 'segment', 'vercel'],
+      channel: 'email',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9061, assignee_id: null, organization_id: 3061,
+    },
+    requester: {
+      id: 9061, name: 'Tom Wren', email: 'dev@appstack.dev',
+      tickets_count: 1, organization: 'AppStack', created_at: daysAgo(45),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6101, index: 1, is_agent: false,
+        author_id: 9061, author_name: 'Tom Wren',
+        body: '<p>Hey, we are a Next.js SaaS deployed on Vercel. We have Segment for analytics, HubSpot for CRM, Stripe for payments and Intercom for support. We want to implement Google Consent Mode v2 so our ad conversions still work even when users decline analytics cookies. Can you walk me through the correct CookieYes GCM setup for this stack?</p>',
+        plain_body: 'Hey, we are a Next.js SaaS deployed on Vercel. We have Segment for analytics, HubSpot for CRM, Stripe for payments and Intercom for support. We want to implement Google Consent Mode v2 so our ad conversions still work even when users decline analytics cookies. Can you walk me through the correct CookieYes GCM setup for this stack?',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12362 — Technical: WordPress + WooCommerce + WP Rocket conflict ────────
+  '12362': {
+    ticket: {
+      id: 12362,
+      subject: 'Cookie banner gone after installing WP Rocket on WooCommerce site',
+      description: 'We run WooCommerce and just installed WP Rocket for performance. The cookie banner vanished immediately.',
+      status: 'open', priority: 'high',
+      tags: ['banner', 'not-loading', 'wp-rocket', 'wordpress', 'woocommerce', 'caching'],
+      channel: 'web',
+      created_at: daysAgo(2), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9062, assignee_id: null, organization_id: 3062,
+    },
+    requester: {
+      id: 9062, name: 'Rosa Meier', email: 'support@blogpress.net',
+      tickets_count: 1, organization: 'BlogPress', created_at: daysAgo(180),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6201, index: 1, is_agent: false,
+        author_id: 9062, author_name: 'Rosa Meier',
+        body: '<p>Hello, we have a WooCommerce store on WordPress. We installed WP Rocket two days ago for speed optimization and the CookieYes banner completely disappeared. We also use Hotjar and Google Tag Manager. I have tried disabling WP Rocket and the banner comes back immediately so it is definitely WP Rocket causing this. We have JS minification and Delay JS Execution turned on. Can you tell me exactly what to exclude in WP Rocket settings?</p>',
+        plain_body: 'Hello, we have a WooCommerce store on WordPress. We installed WP Rocket two days ago for speed optimization and the CookieYes banner completely disappeared. We also use Hotjar and Google Tag Manager. I have tried disabling WP Rocket and the banner comes back immediately so it is definitely WP Rocket causing this. We have JS minification and Delay JS Execution turned on. Can you tell me exactly what to exclude in WP Rocket settings?',
+        created_at: daysAgo(2), attachments: [], via: { channel: 'web' },
+      },
+    ],
+  },
+
+  // ── #12363 — Technical: Legacy marketing site, Cloudflare + HubSpot + GTM ──
+  '12363': {
+    ticket: {
+      id: 12363,
+      subject: 'Banner loads slowly — Cloudflare Rocket Loader suspected',
+      description: 'Our marketing site uses Cloudflare and the consent banner appears 3-4 seconds after page load, causing a flash of unblocked content.',
+      status: 'open', priority: 'normal',
+      tags: ['banner', 'cloudflare', 'cdn', 'performance', 'technical'],
+      channel: 'email',
+      created_at: daysAgo(1), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9063, assignee_id: null, organization_id: 3063,
+    },
+    requester: {
+      id: 9063, name: 'Marc Dubois', email: 'tech@brandsite.co',
+      tickets_count: 3, organization: 'BrandSite', created_at: daysAgo(300),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6301, index: 1, is_agent: false,
+        author_id: 9063, author_name: 'Marc Dubois',
+        body: '<p>Hi, our website runs on WordPress with Cloudflare in front. We use HubSpot for marketing, Mailchimp for email, GTM for tag management and reCAPTCHA for forms. The CookieYes banner takes 3 to 4 seconds to appear after the page loads, which means trackers like HubSpot and Mailchimp fire before the user can consent. I think Cloudflare Rocket Loader might be the issue. What should I configure?</p>',
+        plain_body: 'Hi, our website runs on WordPress with Cloudflare in front. We use HubSpot for marketing, Mailchimp for email, GTM for tag management and reCAPTCHA for forms. The CookieYes banner takes 3 to 4 seconds to appear after the page loads, which means trackers like HubSpot and Mailchimp fire before the user can consent. I think Cloudflare Rocket Loader might be the issue. What should I configure?',
+        created_at: daysAgo(1), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12364 — Technical: Competing CMP (Cookiebot still active) ───────────
+  '12364': {
+    ticket: {
+      id: 12364,
+      subject: 'Two consent banners showing — Cookiebot and CookieYes conflict',
+      description: 'After migrating to CookieYes we now see two cookie banners on our site. Cookiebot script appears to still be running.',
+      status: 'open', priority: 'urgent',
+      tags: ['banner', 'conflict_cmp', 'cookiebot', 'technical', 'react'],
+      channel: 'web',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9064, assignee_id: null, organization_id: 3064,
+    },
+    requester: {
+      id: 9064, name: 'Lena Koch', email: 'dev@techventure.io',
+      tickets_count: 1, organization: 'TechVenture', created_at: daysAgo(20),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6401, index: 1, is_agent: false,
+        author_id: 9064, author_name: 'Lena Koch',
+        body: '<p>Hi, we just migrated from Cookiebot to CookieYes on our React app. We removed the Cookiebot script from GTM but we are still seeing two consent banners appearing — one from Cookiebot and one from CookieYes. We also use Google Analytics 4 and Segment. Visitors are getting two consent prompts which is terrible UX. How do we fully remove Cookiebot and make sure only CookieYes runs?</p>',
+        plain_body: 'Hi, we just migrated from Cookiebot to CookieYes on our React app. We removed the Cookiebot script from GTM but we are still seeing two consent banners appearing — one from Cookiebot and one from CookieYes. We also use Google Analytics 4 and Segment. Visitors are getting two consent prompts which is terrible UX. How do we fully remove Cookiebot and make sure only CookieYes runs?',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'web' },
+      },
+    ],
+  },
+
   // ── #12347 — Account: 2FA locked out, AppSumo user ───────────────────────
   '12347': {
     ticket: {
@@ -480,6 +620,34 @@ const DEMO_TICKETS: Record<string, unknown> = {
         created_at: daysAgo(0),
         attachments: [],
         via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12365 — GCM v2 verification — all categories correct ───────────────────
+  '12365': {
+    ticket: {
+      id: 12365,
+      subject: 'Please verify our Google Consent Mode v2 setup is correct',
+      description: 'We recently implemented GCM v2 with CookieYes and want to confirm everything is configured correctly before our GDPR audit next week.',
+      status: 'open', priority: 'normal',
+      tags: ['gcm', 'gtm', 'gdpr', 'technical', 'verification'],
+      channel: 'email',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9065, assignee_id: null, organization_id: 3065,
+    },
+    requester: {
+      id: 9065, name: 'Clara Hoffman', email: 'privacy@gcmready.io',
+      tickets_count: 1, organization: 'GCMReady', created_at: daysAgo(60),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6501, index: 1, is_agent: false,
+        author_id: 9065, author_name: 'Clara Hoffman',
+        body: '<p>Hi CookieYes team, we implemented Google Consent Mode v2 on our website last month using your GCM integration guide. We have an external GDPR audit coming up next week and our auditor has asked us to confirm that consent defaults are set before any tags fire, and that all six GCM v2 categories are correctly configured. Can you verify our setup at gcmready.io looks correct? We use Google Tag Manager with GA4 and Google Ads.</p>',
+        plain_body: 'Hi CookieYes team, we implemented Google Consent Mode v2 on our website last month using your GCM integration guide. We have an external GDPR audit coming up next week and our auditor has asked us to confirm that consent defaults are set before any tags fire, and that all six GCM v2 categories are correctly configured. Can you verify our setup at gcmready.io looks correct? We use Google Tag Manager with GA4 and Google Ads.',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'email' },
       },
     ],
   },

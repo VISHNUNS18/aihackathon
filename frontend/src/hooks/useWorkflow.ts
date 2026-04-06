@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useWorkflowStore } from '@/store/workflowStore';
+import type { WorkflowState } from '@/store/workflowStore';
 import { useAgentStore } from '@/store/agentStore';
 import type { ToneStyle } from '@/store/agentStore';
 import api from '@/lib/api';
@@ -72,9 +73,15 @@ export function useWorkflow() {
       if (isTechnical && account?.domain) {
         store.setSkillStatus(4, 'running');
         try {
-          const { data: debugRes } = await api.get(
-            `/api/debug?domain=${encodeURIComponent(account.domain)}`
-          );
+          // Prefer the full website URL from the ticket/account so Wappalyzer
+          // receives a complete URL. Fall back to bare domain if unavailable.
+          const siteUrl: string =
+            (account as { website?: { url?: string } }).website?.url
+            ?? account.domain;
+          const debugParam = siteUrl.startsWith('http')
+            ? `website=${encodeURIComponent(siteUrl)}`
+            : `domain=${encodeURIComponent(siteUrl)}`;
+          const { data: debugRes } = await api.get(`/api/debug?${debugParam}`);
           debugData = debugRes;
           store.setDebug(debugRes);
           store.setSkillStatus(4, 'done');
@@ -177,7 +184,7 @@ export function useWorkflow() {
 
 function parseDraftAndCategory(
   fullOutput: string,
-  store: ReturnType<typeof useWorkflowStore>,
+  store: WorkflowState,
   bundleRes: { requester?: { name?: string } },
   isPresales: boolean,
   account: unknown

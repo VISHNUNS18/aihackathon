@@ -76,7 +76,7 @@ export default function SkillsPipeline() {
 
         <div className="flex items-center gap-0.5 flex-wrap">
           {SKILLS.map((skill, i) => {
-            const status = skillStatuses[skill.id] ?? 'idle';
+            const status = (skill.id === 6 && jira) ? 'done' : (skillStatuses[skill.id] ?? 'idle');
             return (
               <div key={skill.id} className="flex items-center">
                 <div
