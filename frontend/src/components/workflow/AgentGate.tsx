@@ -1,0 +1,221 @@
+import { useState, useRef } from 'react';
+import { CheckCircle, Copy, Send, AlertCircle, ExternalLink, RefreshCw, Sparkles, X } from 'lucide-react';
+import { useWorkflowStore } from '@/store/workflowStore';
+import { useAgentStore } from '@/store/agentStore';
+import type { ToneStyle } from '@/store/agentStore';
+import { useWorkflow } from '@/hooks/useWorkflow';
+import DraftEditor from './DraftEditor';
+
+const TONES: { key: ToneStyle; label: string; emoji: string }[] = [
+  { key: 'friendly',     label: 'Friendly',     emoji: '😊' },
+  { key: 'professional', label: 'Professional',  emoji: '👔' },
+  { key: 'technical',    label: 'Technical',     emoji: '🔧' },
+  { key: 'concise',      label: 'Concise',       emoji: '⚡' },
+];
+
+export default function AgentGate() {
+  const {
+    draft, setDraft, bundle, account,
+    ticketId, category, infoGatheringMode,
+    skillStatuses, jira, isRunning,
+  } = useWorkflowStore();
+  const { tone, setTone, customTone, setCustomTone } = useAgentStore();
+  const { regenDraft } = useWorkflow();
+  const [copied, setCopied] = useState(false);
+  const [showCustomTone, setShowCustomTone] = useState(false);
+  const [localCustomTone, setLocalCustomTone] = useState(customTone);
+  const customToneRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleCopy = () => {
+    if (!draft) return;
+    navigator.clipboard.writeText(draft);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  const contextChips = [
+    { label: 'Account', status: skillStatuses[2] },
+    { label: 'Stripe',  status: skillStatuses[3] },
+    { label: 'Site',    status: skillStatuses[4] },
+  ].filter((c) => c.status === 'done');
+
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Send className="w-4 h-4 text-brand" />
+          <span className="text-sm font-semibold text-gray-700">Next Response</span>
+          <span className="text-xs text-gray-400">— ready to forward to customer</span>
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          {category && (
+            <span className="text-xs px-2.5 py-0.5 bg-brand/10 text-brand rounded-full font-medium">
+              {category}
+            </span>
+          )}
+          {contextChips.map((c) => (
+            <span key={c.label} className="text-xs px-2 py-0.5 bg-green-50 text-green-600 border border-green-100 rounded-full">
+              {c.label} ✓
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="p-5 space-y-3">
+
+        {/* ── Tone selector ───────────────────────────────────────────── */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-gray-400 font-medium flex-shrink-0">Tone:</span>
+            {TONES.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => {
+                  setTone(t.key);
+                  // clear custom tone when switching to preset
+                  if (customTone) {
+                    setCustomTone('');
+                    setLocalCustomTone('');
+                  }
+                  if (draft) regenDraft(t.key, '');
+                }}
+                title={`Switch to ${t.label} tone and regenerate`}
+                className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg border transition-all ${
+                  tone === t.key && !customTone
+                    ? 'bg-brand text-white border-brand font-semibold'
+                    : 'bg-white text-gray-500 border-gray-200 hover:border-brand/40 hover:text-brand'
+                }`}
+              >
+                <span>{t.emoji}</span>
+                {t.label}
+              </button>
+            ))}
+
+            {/* Custom tone toggle */}
+            <button
+              onClick={() => {
+                setShowCustomTone(!showCustomTone);
+                if (!showCustomTone) setTimeout(() => customToneRef.current?.focus(), 50);
+              }}
+              className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg border transition-all ${
+                customTone
+                  ? 'bg-violet-600 text-white border-violet-600 font-semibold'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-violet-400 hover:text-violet-600'
+              }`}
+            >
+              <Sparkles className="w-3 h-3" />
+              {customTone ? 'Custom ✓' : 'Custom'}
+            </button>
+
+            {draft && !isRunning && (
+              <button
+                onClick={() => regenDraft(tone, customTone)}
+                className="flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg border border-gray-200 text-gray-500 hover:border-brand/40 hover:text-brand transition-all ml-auto"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Regenerate
+              </button>
+            )}
+          </div>
+
+          {/* Custom tone input — shown when toggled or already set */}
+          {(showCustomTone || customTone) && (
+            <div className="relative">
+              <textarea
+                ref={customToneRef}
+                value={localCustomTone}
+                onChange={(e) => setLocalCustomTone(e.target.value)}
+                onBlur={() => {
+                  setCustomTone(localCustomTone);
+                  if (draft && localCustomTone !== customTone) regenDraft(tone, localCustomTone);
+                }}
+                rows={2}
+                placeholder='Describe your preferred tone, e.g. "Always empathise first, then explain the fix. End with an offer to follow up."'
+                className="w-full px-3 py-2 pr-8 text-xs text-gray-700 border border-violet-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400 resize-none bg-violet-50/40 placeholder-gray-400"
+              />
+              {localCustomTone && (
+                <button
+                  onClick={() => {
+                    setLocalCustomTone('');
+                    setCustomTone('');
+                    setShowCustomTone(false);
+                    if (draft) regenDraft(tone, '');
+                  }}
+                  className="absolute top-2 right-2 text-gray-300 hover:text-gray-500"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+              <p className="text-[11px] text-violet-400 mt-1">
+                Custom prompt overrides the preset tone. Saved on blur · regenerates draft automatically.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* ── Info-gathering notice ───────────────────────────────────── */}
+        {infoGatheringMode && (
+          <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2.5">
+            <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+            <span>
+              Account not found for <strong>{bundle?.requester?.email}</strong> — draft asks for registered email &amp; domain.
+              Re-run the workflow once the customer replies.
+            </span>
+          </div>
+        )}
+
+        {/* ── Draft ───────────────────────────────────────────────────── */}
+        <DraftEditor draft={draft} onChange={setDraft} />
+
+        {/* ── Copy action ─────────────────────────────────────────────── */}
+        <div className="flex items-center gap-3 pt-1 flex-wrap">
+          <button
+            onClick={handleCopy}
+            disabled={!draft}
+            className="flex items-center gap-2 px-5 py-2 bg-brand text-white text-sm font-semibold rounded-lg hover:bg-brand-dark disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
+          >
+            {copied
+              ? <><CheckCircle className="w-4 h-4" /> Copied!</>
+              : <><Copy className="w-4 h-4" /> Copy &amp; Forward</>}
+          </button>
+          <p className="text-xs text-gray-400">Use Raise Bug / Escalate Slack buttons in the pipeline bar above.</p>
+        </div>
+
+        {/* ── Jira success banner (set by pipeline modal) ──────────── */}
+        {jira && (
+          <div className="flex items-center justify-between px-4 py-3 bg-green-50 border border-green-100 rounded-lg">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+              <div>
+                <span className="text-sm font-semibold text-green-700">Jira — </span>
+                <span className="text-sm text-green-700 font-mono">{jira.key}</span>
+                <p className="text-xs text-green-600 mt-0.5 truncate max-w-xs">
+                  {jira.summary || `Banner issue on ${account?.domain}`}
+                </p>
+              </div>
+            </div>
+            <a
+              href={jira.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors flex-shrink-0"
+            >
+              <ExternalLink className="w-3 h-3" />
+              Open in Jira
+            </a>
+          </div>
+        )}
+
+        {/* ── Escalation hint when ticket is loaded ────────────────── */}
+        {bundle && !jira && (
+          <p className="text-[11px] text-gray-300 text-center">
+            Use <strong>Raise Bug</strong> or <strong>Escalate Slack</strong> in the pipeline bar ↑ to escalate this ticket.
+          </p>
+        )}
+
+      </div>
+    </div>
+  );
+}
