@@ -22,6 +22,7 @@ export interface Account {
     billing_cycle: { start: string; end: string };
   };
   scan_history?: ScanRecord[];
+  cookie_list?: CookieDetail[];
 
   // Extended admin fields
   website?: WebsiteDetails;
@@ -39,6 +40,16 @@ export interface ScanRecord {
   cookies: number;
   scripts: number;
   failed_reason?: string | null;
+  scanned_urls?: string[];
+}
+
+export interface CookieDetail {
+  name: string;
+  category: string;
+  domain: string;
+  duration: string;
+  description?: string;
+  type: 'first_party' | 'third_party';
 }
 
 export interface WebsiteDetails {

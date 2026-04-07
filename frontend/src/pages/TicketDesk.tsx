@@ -9,7 +9,7 @@ import ConversationThread from '@/components/ticket/ConversationThread';
 import WorkflowPanel from '@/components/workflow/WorkflowPanel';
 import StripePanel from '@/components/stripe/StripePanel';
 import AccountSnapshot from '@/components/account/AccountSnapshot';
-import { Zap, CreditCard, User, ChevronsLeft, ChevronsRight, MessageSquare } from 'lucide-react';
+import { Zap, CreditCard, User, ChevronsLeft, ChevronsRight, MessageSquare, Sparkles } from 'lucide-react';
 
 type RightTab = 'workflow' | 'account' | 'stripe';
 type ConvSize = 'compact' | 'expanded' | 'collapsed';
@@ -23,7 +23,7 @@ const CONV_WIDTH: Record<ConvSize, string> = {
 export default function TicketDesk() {
   const { ticketId: paramId } = useParams();
   const { run } = useWorkflow();
-  const { bundle, account, stripe } = useWorkflowStore();
+  const { bundle, account, stripe, querySummary, isRunning } = useWorkflowStore();
   const [rightTab, setRightTab] = useState<RightTab>('workflow');
   const [convSize, setConvSize] = useState<ConvSize>('compact');
 
@@ -87,6 +87,35 @@ export default function TicketDesk() {
                 </div>
                 <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3">
                   <ConversationThread />
+
+                  {/* ── Query Summary ─────────────────────────────── */}
+                  {(querySummary || isRunning) && (
+                    <div className="mt-4 rounded-xl bg-amber-50 border border-amber-100 px-4 py-3">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <Sparkles className="w-3 h-3 text-amber-500" />
+                        <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wide">AI Summary</span>
+                      </div>
+                      {querySummary ? (
+                        <ul className="space-y-1.5">
+                          {querySummary
+                            .split(/(?<=[.!?])\s+/)
+                            .filter((s) => s.trim().length > 0)
+                            .map((sentence, i) => (
+                              <li key={i} className="flex items-start gap-2 text-xs text-amber-900">
+                                <span className="mt-1.5 w-1 h-1 rounded-full bg-amber-400 flex-shrink-0" />
+                                <span className="leading-relaxed">{sentence.trim()}</span>
+                              </li>
+                            ))}
+                        </ul>
+                      ) : (
+                        <div className="space-y-1.5 animate-pulse">
+                          <div className="h-2.5 bg-amber-100 rounded-full w-full" />
+                          <div className="h-2.5 bg-amber-100 rounded-full w-4/5" />
+                          <div className="h-2.5 bg-amber-100 rounded-full w-3/5" />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </>
             )}

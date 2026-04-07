@@ -361,6 +361,21 @@ const DEMO_GCM_STATUS: Record<string, GCMStatus> = {
     verdict: 'ok',
     source: 'mock',
   },
+  // consentdemo.io — all GCM categories granted by default (opt-out / pre-consent mode)
+  'consentdemo.io': {
+    detected: true, was_set_late: false,
+    entries: {
+      analytics_storage:      { default: 'granted', update: 'granted' },
+      ad_storage:             { default: 'granted', update: 'granted' },
+      ad_user_data:           { default: 'granted', update: 'granted' },
+      ad_personalization:     { default: 'granted', update: 'granted' },
+      functionality_storage:  { default: 'granted', update: 'granted' },
+      personalization_storage:{ default: 'granted', update: 'granted' },
+    },
+    warnings: [],
+    verdict: 'ok',
+    source: 'mock',
+  },
   // techventure.io — GCM correctly configured after Cookiebot removal
   'techventure.io': {
     detected: true, was_set_late: false,
@@ -381,6 +396,14 @@ const DEMO_GCM_STATUS: Record<string, GCMStatus> = {
 // ─── Demo tech stacks (returned for known demo domains, no API key needed) ────
 
 const DEMO_TECH_STACKS: Record<string, WappalyzerTech[]> = {
+  'consentdemo.io': [
+    { name: 'WordPress',         category: 'cms',         confidence: 100 },
+    { name: 'Google Tag Manager',category: 'tag_manager', confidence: 100 },
+    { name: 'Google Analytics 4',category: 'analytics',   confidence: 100 },
+    { name: 'Google Ads',        category: 'marketing',   confidence: 100 },
+    { name: 'Yoast SEO',         category: 'other',       confidence: 95  },
+    { name: 'jQuery',            category: 'framework',   confidence: 100 },
+  ],
   'gcmready.io': [
     { name: 'WordPress',         category: 'cms',         confidence: 100 },
     { name: 'Google Tag Manager',category: 'tag_manager', confidence: 100 },

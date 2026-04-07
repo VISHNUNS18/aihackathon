@@ -624,6 +624,37 @@ const DEMO_TICKETS: Record<string, unknown> = {
     ],
   },
 
+  // ── #12366 — Ambiguous: "enable default consent settings" ───────────────────
+  // GCM debug shows consent defaults are already correctly configured.
+  // Could mean: (A) enable/verify GCM default consent — already done
+  //             (B) enable "Load cookies prior to consent" in banner settings
+  '12366': {
+    ticket: {
+      id: 12366,
+      subject: 'I want to enable my default consent settings',
+      description: 'I want to enable the default consent settings on my website. Can you help me set this up?',
+      status: 'open', priority: 'normal',
+      tags: ['gcm', 'gtm', 'technical', 'consent'],
+      channel: 'web',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9066, assignee_id: null, organization_id: 3066,
+    },
+    requester: {
+      id: 9066, name: 'James Okafor', email: 'admin@consentdemo.io',
+      tickets_count: 1, organization: 'ConsentDemo', created_at: daysAgo(148),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6601, index: 1, is_agent: false,
+        author_id: 9066, author_name: 'James Okafor',
+        body: '<p>Hi, I want to enable the default consent settings on my website. I have CookieYes installed with Google Tag Manager and Google Analytics 4. I just want to make sure that by default, consent is enabled for my visitors. Can you help me get this set up correctly? Our site is consentdemo.io.</p>',
+        plain_body: 'Hi, I want to enable the default consent settings on my website. I have CookieYes installed with Google Tag Manager and Google Analytics 4. I just want to make sure that by default, consent is enabled for my visitors. Can you help me get this set up correctly? Our site is consentdemo.io.',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'web' },
+      },
+    ],
+  },
+
   // ── #12365 — GCM v2 verification — all categories correct ───────────────────
   '12365': {
     ticket: {

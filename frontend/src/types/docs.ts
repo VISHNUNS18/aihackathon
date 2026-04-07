@@ -4,4 +4,5 @@ export interface DocArticle {
   category: 'Getting Started' | 'Technical' | 'Billing' | 'Compliance' | 'Account' | 'Presales' | 'Features';
   tags: string[];
   content: string;
+  url?: string;
 }

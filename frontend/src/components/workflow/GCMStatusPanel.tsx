@@ -29,7 +29,7 @@ function ConsentBadge({ value }: { value: ConsentVal }) {
 }
 
 export default function GCMStatusPanel({ debug }: Props) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const gcm = debug.gcm_status;
   if (!gcm) return null;
 

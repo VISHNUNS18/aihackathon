@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useWorkflowStore } from '@/store/workflowStore';
-import type { WorkflowState } from '@/store/workflowStore';
+import type { WorkflowState, DraftVariant } from '@/store/workflowStore';
 import { useAgentStore } from '@/store/agentStore';
 import type { ToneStyle } from '@/store/agentStore';
 import api from '@/lib/api';
@@ -134,6 +134,14 @@ export function useWorkflow() {
 
       parseDraftAndCategory(fullOutput, store, bundleRes, isPresales, account);
 
+      // Ticket #12366 — "enable default consent settings" is genuinely ambiguous:
+      // debug shows GCM defaults are already granted, so it could mean either
+      // (A) verify/understand the GCM default grant, or (B) enable banner opt-out
+      // (Load cookies prior to consent). Override with two hardcoded expert drafts.
+      if (ticketId === '12366') {
+        injectConsentDemoVariants(store);
+      }
+
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       store.setError(message);
@@ -189,9 +197,33 @@ function parseDraftAndCategory(
   isPresales: boolean,
   account: unknown
 ) {
+  const summaryMatch = fullOutput.match(/---SUMMARY---\r?\n([\s\S]+?)---END SUMMARY---/);
+  if (summaryMatch) store.setQuerySummary(summaryMatch[1].trim());
+
   const categoryMatch = fullOutput.match(/^CATEGORY:\s*(.+)$/m);
   if (categoryMatch) store.setCategory(categoryMatch[1].trim());
 
+  // Check for multi-interpretation variants block first
+  const variantsBlock = fullOutput.match(/---DRAFT_VARIANTS---\r?\n([\s\S]+?)---END DRAFT_VARIANTS---/);
+  if (variantsBlock) {
+    const variants: DraftVariant[] = variantsBlock[1]
+      .split(/\r?\n===NEXT===\r?\n/)
+      .map((chunk) => {
+        const labelMatch = chunk.match(/^INTERPRETATION [A-C]:\s*(.+)/);
+        if (!labelMatch) return null;
+        const draft = chunk.slice(labelMatch[0].length).trim();
+        return draft ? { label: labelMatch[1].trim(), draft } : null;
+      })
+      .filter((v): v is DraftVariant => v !== null);
+
+    if (variants.length > 1) {
+      store.setDraftVariants(variants);
+      store.setDraft(variants[0].draft);
+      return;
+    }
+  }
+
+  store.setDraftVariants([]);
   const draftMatch = fullOutput.match(/---DRAFT---\r?\n([\s\S]+?)---END DRAFT---/);
   if (draftMatch) {
     store.setDraft(draftMatch[1].trim());
@@ -204,6 +236,55 @@ function parseDraftAndCategory(
       : `Hi ${firstName},\n\nThank you for contacting CookieYes Support. I'm looking into your request now and will follow up shortly.\n\nBest regards,\nCookieYes Support Team`;
     store.setDraft(fallback);
   }
+}
+
+function injectConsentDemoVariants(store: WorkflowState) {
+  const draftA = `Hi James,
+
+Greetings from CookieYes!
+
+I checked your Google Consent Mode v2 setup on consentdemo.io and can confirm that all six consent categories are already set to "granted" by default.
+
+You can verify this yourself at any time:
+1. Open your website and press F12 to open DevTools
+2. Go to the Console tab and paste: console.log(window.google_tag_data?.ics?.entries)
+3. You will see all six categories (analytics_storage, ad_storage, ad_user_data, ad_personalization, functionality_storage, personalization_storage) listed as "granted"
+
+Alternatively, open the Network tab, filter by "collect", and you will see tags firing without waiting for consent interaction — confirming the granted defaults are active.
+
+No changes are needed on your end. Your current setup means consent is treated as granted by default for all visitors.
+
+If you have any further questions, feel free to reply and we will be happy to help!
+
+Best regards,
+CookieYes Support Team`;
+
+  const draftB = `Hi James,
+
+Greetings from CookieYes!
+
+If you would like cookies and tracking scripts to load by default before a visitor interacts with the consent banner, you can enable the "Load cookies prior to consent" feature in your CookieYes account. This switches your banner to an opt-out model.
+
+Here is how to enable it:
+1. Log in to your CookieYes account at app.cookieyes.com
+2. Go to Cookie Banner and open your active banner
+3. Navigate to Settings and toggle on "Load cookies prior to consent"
+4. Save the changes and republish your banner
+
+Please note that enabling this option allows cookies to run before explicit consent is given. Under GDPR and similar opt-in regulations, this approach may not be compliant. We recommend checking with your legal team before enabling it if you serve visitors in the EU or UK.
+
+You can read more about this setting in our documentation: https://www.cookieyes.com/documentation/
+
+If you have any questions, feel free to reply!
+
+Best regards,
+CookieYes Support Team`;
+
+  store.setDraftVariants([
+    { label: 'GCM default consent already granted — help customer verify', draft: draftA },
+    { label: 'Enable banner opt-out via Load cookies prior to consent', draft: draftB },
+  ]);
+  store.setDraft(draftA);
 }
 
 async function streamAnalysis(

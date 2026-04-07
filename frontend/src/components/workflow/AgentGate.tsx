@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { CheckCircle, Copy, Send, AlertCircle, ExternalLink, RefreshCw, Sparkles, X } from 'lucide-react';
+import { CheckCircle, Copy, Send, AlertCircle, ExternalLink, RefreshCw, Sparkles, X, GitBranch } from 'lucide-react';
 import { useWorkflowStore } from '@/store/workflowStore';
 import { useAgentStore } from '@/store/agentStore';
 import type { ToneStyle } from '@/store/agentStore';
@@ -15,13 +15,14 @@ const TONES: { key: ToneStyle; label: string; emoji: string }[] = [
 
 export default function AgentGate() {
   const {
-    draft, setDraft, bundle, account,
+    draft, setDraft, draftVariants, bundle, account,
     ticketId, category, infoGatheringMode,
     skillStatuses, jira, isRunning,
   } = useWorkflowStore();
   const { tone, setTone, customTone, setCustomTone } = useAgentStore();
   const { regenDraft } = useWorkflow();
   const [copied, setCopied] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState(0);
   const [showCustomTone, setShowCustomTone] = useState(false);
   const [localCustomTone, setLocalCustomTone] = useState(customTone);
   const customToneRef = useRef<HTMLTextAreaElement>(null);
@@ -154,6 +155,48 @@ export default function AgentGate() {
             </div>
           )}
         </div>
+
+        {/* ── Ambiguous query — interpretation picker ─────────────────── */}
+        {draftVariants.length > 1 && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-2">
+            <div className="flex items-center gap-2">
+              <GitBranch className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+              <span className="text-xs font-semibold text-amber-700">Ambiguous query — pick the best interpretation</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              {draftVariants.map((v, i) => (
+                <button
+                  key={`${v.label}-${i}`}
+                  onClick={() => {
+                    setSelectedVariant(i);
+                    setDraft(v.draft);
+                  }}
+                  className={`flex items-start gap-2.5 px-3 py-2.5 rounded-lg border text-left transition-all ${
+                    selectedVariant === i
+                      ? 'border-amber-400 bg-white shadow-sm'
+                      : 'border-amber-100 bg-amber-50/60 hover:border-amber-300 hover:bg-white'
+                  }`}
+                >
+                  <span className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                    selectedVariant === i
+                      ? 'bg-amber-500 text-white'
+                      : 'bg-amber-200 text-amber-700'
+                  }`}>
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  <span className={`text-xs font-medium leading-relaxed ${
+                    selectedVariant === i ? 'text-amber-900' : 'text-amber-700'
+                  }`}>
+                    {v.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-amber-500 pl-1">
+              Selecting an interpretation loads its draft below. Edit as needed before sending.
+            </p>
+          </div>
+        )}
 
         {/* ── Info-gathering notice ───────────────────────────────────── */}
         {infoGatheringMode && (

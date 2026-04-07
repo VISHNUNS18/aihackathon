@@ -26,7 +26,7 @@ const CATEGORY_ORDER = [
 ];
 
 export default function TechStackPanel({ debug }: Props) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const techs = debug.technologies_detected ?? [];
   if (techs.length === 0) return null;

@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, BookOpen, Globe, Mail } from 'lucide-react';
+import { ChevronDown, ChevronUp, BookOpen, Globe, Mail, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { useWorkflowStore } from '@/store/workflowStore';
 import OutputRenderer from './OutputRenderer';
@@ -60,11 +60,24 @@ export default function WorkflowPanel() {
             <span className="text-xs font-semibold text-cyan-700">Documentation matched</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {docResults.map((doc) => (
-              <span key={doc.id} className="text-xs px-2.5 py-1 bg-white border border-cyan-200 text-cyan-700 rounded-full">
-                {doc.title}
-              </span>
-            ))}
+            {docResults.map((doc) =>
+              doc.url ? (
+                <a
+                  key={doc.id}
+                  href={doc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs px-2.5 py-1 bg-white border border-cyan-200 text-cyan-700 rounded-full hover:bg-cyan-50 hover:border-cyan-400 transition-colors"
+                >
+                  {doc.title}
+                  <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                </a>
+              ) : (
+                <span key={doc.id} className="text-xs px-2.5 py-1 bg-white border border-cyan-200 text-cyan-700 rounded-full">
+                  {doc.title}
+                </span>
+              )
+            )}
           </div>
         </div>
       )}

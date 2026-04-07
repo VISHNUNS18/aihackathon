@@ -1,4 +1,4 @@
-import { Bell, Search } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import ProductSwitcher from '@/components/shared/ProductSwitcher';
 import { useAgentStore } from '@/store/agentStore';
 
@@ -7,16 +7,7 @@ export default function Header() {
 
   return (
     <header className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-4">
-      <div className="flex-1 flex items-center gap-3">
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Jump to ticket..."
-            className="w-full pl-9 pr-4 py-1.5 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-          />
-        </div>
-      </div>
+      <div className="flex-1" />
 
       <ProductSwitcher />
 

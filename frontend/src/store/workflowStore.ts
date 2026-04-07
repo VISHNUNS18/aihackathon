@@ -8,6 +8,11 @@ import type { DocArticle } from '@/types/docs';
 
 export type SkillStatus = 'idle' | 'running' | 'done' | 'skipped' | 'error';
 
+export interface DraftVariant {
+  label: string;
+  draft: string;
+}
+
 export interface WorkflowState {
   ticketId: string;
   bundle: TicketBundle | null;
@@ -20,7 +25,9 @@ export interface WorkflowState {
   skillStatuses: Record<number, SkillStatus>;
   streamOutput: string;
   draft: string;
+  draftVariants: DraftVariant[];
   category: string;
+  querySummary: string;
 
   isRunning: boolean;
   error: string | null;
@@ -38,7 +45,9 @@ export interface WorkflowState {
   appendStream: (text: string) => void;
   clearStream: () => void;
   setDraft: (d: string) => void;
+  setDraftVariants: (v: DraftVariant[]) => void;
   setCategory: (c: string) => void;
+  setQuerySummary: (s: string) => void;
   setIsRunning: (v: boolean) => void;
   setError: (e: string | null) => void;
   setInfoGatheringMode: (v: boolean) => void;
@@ -61,7 +70,9 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
   skillStatuses: { ...initialSkillStatuses },
   streamOutput: '',
   draft: '',
+  draftVariants: [],
   category: '',
+  querySummary: '',
   isRunning: false,
   error: null,
   infoGatheringMode: false,
@@ -77,9 +88,11 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
   setSkillStatus: (id, status) =>
     set((s) => ({ skillStatuses: { ...s.skillStatuses, [id]: status } })),
   appendStream: (text) => set((s) => ({ streamOutput: s.streamOutput + text })),
-  clearStream: () => set({ streamOutput: '', draft: '' }),
+  clearStream: () => set({ streamOutput: '', draft: '', draftVariants: [], querySummary: '' }),
   setDraft: (d) => set({ draft: d }),
+  setDraftVariants: (v) => set({ draftVariants: v }),
   setCategory: (c) => set({ category: c }),
+  setQuerySummary: (s) => set({ querySummary: s }),
   setIsRunning: (v) => set({ isRunning: v }),
   setError: (e) => set({ error: e }),
   setInfoGatheringMode: (v) => set({ infoGatheringMode: v }),
@@ -95,7 +108,9 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
       skillStatuses: { ...initialSkillStatuses },
       streamOutput: '',
       draft: '',
+      draftVariants: [],
       category: '',
+      querySummary: '',
       isRunning: false,
       error: null,
       infoGatheringMode: false,
