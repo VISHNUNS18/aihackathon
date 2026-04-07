@@ -5,6 +5,7 @@ import type { StripeCustomer } from '@/types/stripe';
 import type { SiteDebugReport } from '@/types/debug';
 import type { JiraIssue } from '@/types/jira';
 import type { DocArticle } from '@/types/docs';
+import type { CertSearchResult } from '@/types/certification';
 
 export type SkillStatus = 'idle' | 'running' | 'done' | 'skipped' | 'error';
 
@@ -21,6 +22,10 @@ export interface WorkflowState {
   debug: SiteDebugReport | null;
   jira: JiraIssue | null;
   docResults: DocArticle[];
+
+  // Certification request
+  isCertRequest: boolean;
+  certResult: CertSearchResult | null;
 
   skillStatuses: Record<number, SkillStatus>;
   streamOutput: string;
@@ -41,6 +46,8 @@ export interface WorkflowState {
   setDebug: (d: SiteDebugReport) => void;
   setJira: (j: JiraIssue) => void;
   setDocResults: (docs: DocArticle[]) => void;
+  setIsCertRequest: (v: boolean) => void;
+  setCertResult: (r: CertSearchResult | null) => void;
   setSkillStatus: (id: number, status: SkillStatus) => void;
   appendStream: (text: string) => void;
   clearStream: () => void;
@@ -56,7 +63,7 @@ export interface WorkflowState {
 }
 
 const initialSkillStatuses: Record<number, SkillStatus> = {
-  1: 'idle', 2: 'idle', 3: 'idle', 4: 'idle', 5: 'idle', 6: 'idle', 7: 'idle',
+  1: 'idle', 2: 'idle', 3: 'idle', 4: 'idle', 5: 'idle', 6: 'idle', 7: 'idle', 8: 'idle',
 };
 
 export const useWorkflowStore = create<WorkflowState>((set) => ({
@@ -67,6 +74,8 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
   debug: null,
   jira: null,
   docResults: [],
+  isCertRequest: false,
+  certResult: null,
   skillStatuses: { ...initialSkillStatuses },
   streamOutput: '',
   draft: '',
@@ -85,6 +94,8 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
   setDebug: (d) => set({ debug: d }),
   setJira: (j) => set({ jira: j }),
   setDocResults: (docs) => set({ docResults: docs }),
+  setIsCertRequest: (v) => set({ isCertRequest: v }),
+  setCertResult: (r) => set({ certResult: r }),
   setSkillStatus: (id, status) =>
     set((s) => ({ skillStatuses: { ...s.skillStatuses, [id]: status } })),
   appendStream: (text) => set((s) => ({ streamOutput: s.streamOutput + text })),
@@ -105,6 +116,8 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
       debug: null,
       jira: null,
       docResults: [],
+      isCertRequest: false,
+      certResult: null,
       skillStatuses: { ...initialSkillStatuses },
       streamOutput: '',
       draft: '',

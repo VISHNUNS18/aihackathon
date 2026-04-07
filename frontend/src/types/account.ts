@@ -12,6 +12,9 @@ export interface Account {
   scanner_last_run: string;
   cookies_detected: number;
   regulation: 'GDPR' | 'CCPA' | 'US State' | 'Custom';
+  consent_template?: 'GDPR' | 'CCPA' | 'GDPR & US State Laws';
+  iab_tcf_enabled?: boolean;
+  geo_target?: 'worldwide' | 'eu_and_uk' | 'select_countries';
   appsumo_deal: boolean;
   created_at: string;
   product: string;

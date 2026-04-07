@@ -5,11 +5,12 @@ import OutputRenderer from './OutputRenderer';
 import AgentGate from './AgentGate';
 import TechStackPanel from './TechStackPanel';
 import GCMStatusPanel from './GCMStatusPanel';
+import CertificationPanel from './CertificationPanel';
 import Spinner from '@/components/shared/Spinner';
 import type { SiteDebugReport } from '@/types/debug';
 
 export default function WorkflowPanel() {
-  const { streamOutput, isRunning, error, docResults, debug, bundle, account } = useWorkflowStore();
+  const { streamOutput, isRunning, error, docResults, debug, bundle, account, isCertRequest } = useWorkflowStore();
   const debugReport = debug as SiteDebugReport | null;
   const [outputExpanded, setOutputExpanded] = useState(false);
 
@@ -130,6 +131,9 @@ export default function WorkflowPanel() {
       {debugReport && debugReport.technologies_detected?.length > 0 && (
         <TechStackPanel debug={debugReport} />
       )}
+
+      {/* ── Certification / Document request ─────────────────────── */}
+      {isCertRequest && <CertificationPanel />}
 
       {/* ── Next Response ─────────────────────────────────────────── */}
       <AgentGate />

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Globe, ScanLine, Zap, TrendingUp, AlertTriangle, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { Shield, Globe, ScanLine, Zap, TrendingUp, AlertTriangle, ChevronDown, ChevronUp, ExternalLink, FileText, Radio, MapPin } from 'lucide-react';
 import Badge from '@/components/shared/Badge';
 import { formatDate } from '@/lib/utils';
 import type { Account, ScanRecord } from '@/types/account';
@@ -191,6 +191,58 @@ export default function AccountSnapshot({ account }: Props) {
         {/* Cookie list */}
         {account.cookie_list && account.cookie_list.length > 0 && (
           <CookieListPanel cookies={account.cookie_list} />
+        )}
+
+        {/* Banner config — template, IAB TCF, geo target */}
+        {(account.consent_template || account.iab_tcf_enabled !== undefined || account.geo_target) && (
+          <div className="border-t border-gray-50 pt-3 space-y-2">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Banner Configuration</p>
+            <div className="grid grid-cols-1 gap-2">
+              {account.consent_template && (
+                <div className="flex items-center justify-between py-1.5 px-2.5 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-gray-300" />
+                    <span className="text-xs text-gray-500">Consent Template</span>
+                  </div>
+                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${
+                    account.consent_template === 'GDPR'
+                      ? 'bg-blue-50 text-blue-600 border-blue-100'
+                      : account.consent_template === 'CCPA'
+                      ? 'bg-amber-50 text-amber-700 border-amber-100'
+                      : 'bg-violet-50 text-violet-700 border-violet-100'
+                  }`}>
+                    {account.consent_template}
+                  </span>
+                </div>
+              )}
+              {account.iab_tcf_enabled !== undefined && (
+                <div className="flex items-center justify-between py-1.5 px-2.5 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-1.5">
+                    <Radio className="w-3.5 h-3.5 text-gray-300" />
+                    <span className="text-xs text-gray-500">IAB TCF v2.3</span>
+                  </div>
+                  <Badge variant={account.iab_tcf_enabled ? 'green' : 'gray'}>
+                    {account.iab_tcf_enabled ? 'Enabled' : 'Disabled'}
+                  </Badge>
+                </div>
+              )}
+              {account.geo_target && (
+                <div className="flex items-center justify-between py-1.5 px-2.5 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-gray-300" />
+                    <span className="text-xs text-gray-500">Geo Target</span>
+                  </div>
+                  <span className="text-[11px] font-medium text-gray-600">
+                    {account.geo_target === 'worldwide'
+                      ? 'Worldwide'
+                      : account.geo_target === 'eu_and_uk'
+                      ? 'EU Countries & UK'
+                      : 'Select Countries'}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
         {/* GCM + banner version footer */}

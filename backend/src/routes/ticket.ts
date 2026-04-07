@@ -682,6 +682,160 @@ const DEMO_TICKETS: Record<string, unknown> = {
       },
     ],
   },
+
+  // ── #12370 — Cert: Tax Residency Certificate 2025 — Poland (found in Drive)
+  '12370': {
+    ticket: {
+      id: 12370, subject: 'Tax Residency Certificate (Poland) needed for vendor onboarding',
+      status: 'open', priority: 'normal',
+      tags: ['certification', 'tax-residency', 'certificate', 'vendor', 'finance', 'poland'],
+      description: 'Hi, we are onboarding CookieYes as a vendor in our Polish procurement system. Our finance team requires a Tax Residency Certificate for Poland for 2025 to process the payment. Could you please provide this document? We need it ASAP as our vendor registration deadline is end of this week. Thanks.',
+      created_at: daysAgo(1), updated_at: daysAgo(1),
+      channel: 'email', product: 'cookieyes', requester_id: 9101, assignee_id: null, organization_id: 3101,
+    },
+    requester: { id: 9101, name: 'Sarah Mitchell', email: 'sarah.mitchell@enterprisecorp.com', tickets_count: 2, organization: 'EnterpriseCorp Inc.', created_at: daysAgo(90) },
+    assignee: null,
+    conversation: [
+      {
+        id: 901001, index: 1, is_agent: false, author_name: 'Sarah Mitchell',
+        body: '<p>Hi, we are onboarding CookieYes as a vendor in our Polish procurement system. Our finance team requires a <strong>Tax Residency Certificate for Poland (2025)</strong> to process the payment. Could you please provide this document? We need it ASAP as our vendor registration deadline is end of this week.</p>',
+        plain_body: 'Hi, we are onboarding CookieYes as a vendor in our Polish procurement system. Our finance team requires a Tax Residency Certificate for Poland (2025) to process the payment. Could you please provide this document? We need it ASAP as our vendor registration deadline is end of this week.',
+        created_at: daysAgo(1), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12371 — Cert: NDA request ────────────────────────────────────────────
+  '12371': {
+    ticket: {
+      id: 12371, subject: 'Can you share your NDA for review and signing?',
+      status: 'open', priority: 'normal',
+      tags: ['certification', 'nda', 'legal', 'compliance', 'certificate'],
+      description: 'Hi, before we proceed with our evaluation of CookieYes for our organisation, our legal team requires a signed Non-Disclosure Agreement (NDA) to be in place. Could you please share your standard NDA template so we can review it and have our legal team countersign? Thank you.',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      channel: 'email', product: 'cookieyes', requester_id: 9102, assignee_id: null, organization_id: 3102,
+    },
+    requester: { id: 9102, name: 'Priya Mehta', email: 'legal@brightwave.io', tickets_count: 1, organization: 'BrightWave Technologies', created_at: daysAgo(30) },
+    assignee: null,
+    conversation: [
+      {
+        id: 902001, index: 1, is_agent: false, author_name: 'Priya Mehta',
+        body: '<p>Hi, before we proceed with our evaluation of CookieYes, our legal team requires a signed <strong>Non-Disclosure Agreement (NDA)</strong> to be in place. Could you please share your standard NDA template so we can review and countersign it?</p>',
+        plain_body: 'Hi, before we proceed with our evaluation of CookieYes, our legal team requires a signed Non-Disclosure Agreement (NDA) to be in place. Could you please share your standard NDA template so we can review and countersign it?',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12372 — Cert: SOC 2 Type II (available via Trust Center) ───────────
+  '12372': {
+    ticket: {
+      id: 12372, subject: 'SOC 2 Type II Report required for security due diligence',
+      status: 'open', priority: 'high',
+      tags: ['certification', 'soc2', 'security-audit', 'compliance', 'certificate', 'due-diligence'],
+      description: 'Hi CookieYes team, our security team is conducting a vendor risk assessment and requires the latest SOC 2 Type II report for CookieYes. This is required before we can sign our annual contract renewal. Our deadline is April 15.',
+      created_at: daysAgo(2), updated_at: daysAgo(2),
+      channel: 'email', product: 'cookieyes', requester_id: 9103, assignee_id: null, organization_id: 3103,
+    },
+    requester: { id: 9103, name: 'James Whitfield', email: 'j.whitfield@securecorp.io', tickets_count: 3, organization: 'SecureCorp Ltd', created_at: daysAgo(200) },
+    assignee: null,
+    conversation: [
+      {
+        id: 903001, index: 1, is_agent: false, author_name: 'James Whitfield',
+        body: '<p>Hi, our security team is conducting a <strong>vendor risk assessment</strong> and requires the latest <strong>SOC 2 Type II report</strong> for CookieYes. Required before our annual contract renewal. Deadline: April 15.</p>',
+        plain_body: 'Hi, our security team is conducting a vendor risk assessment and requires the latest SOC 2 Type II report for CookieYes. Required before our annual contract renewal. Deadline: April 15.',
+        created_at: daysAgo(2), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12374 — Cert: Tax Residency — Armenia (NOT available → escalation) ───
+  '12374': {
+    ticket: {
+      id: 12374, subject: 'Tax Residency Certificate for Armenia required — vendor registration',
+      status: 'open', priority: 'normal',
+      tags: ['certification', 'tax-residency', 'certificate', 'vendor', 'finance', 'armenia'],
+      description: 'Hi, we are registering CookieYes as a vendor with our procurement system in Armenia. Our finance team requires a Tax Residency Certificate for Armenia for 2025. Could you please provide this document at the earliest? Our vendor onboarding deadline is next Friday.',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      channel: 'email', product: 'cookieyes', requester_id: 9105, assignee_id: null, organization_id: 3105,
+    },
+    requester: { id: 9105, name: 'Armen Petrosyan', email: 'finance@armeniaprocure.am', tickets_count: 1, organization: 'Armenia Procurement Ltd', created_at: daysAgo(10) },
+    assignee: null,
+    conversation: [
+      {
+        id: 905001, index: 1, is_agent: false, author_name: 'Armen Petrosyan',
+        body: '<p>Hi, we are registering CookieYes as a vendor in our Armenian procurement system. Our finance team requires a <strong>Tax Residency Certificate for Armenia (2025)</strong>. Could you please share this at the earliest? Deadline is next Friday.</p>',
+        plain_body: 'Hi, we are registering CookieYes as a vendor in our Armenian procurement system. Our finance team requires a Tax Residency Certificate for Armenia (2025). Could you please share this at the earliest? Deadline is next Friday.',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12375 — Cert: SOC 1 Type I (available via Trust Center) ─────────────
+  '12375': {
+    ticket: {
+      id: 12375, subject: 'SOC 1 Type I Report needed for financial audit',
+      status: 'open', priority: 'normal',
+      tags: ['certification', 'soc1', 'security-audit', 'compliance', 'certificate', 'financial-controls'],
+      description: 'Hi CookieYes team, our internal audit team is conducting a financial controls review and needs the latest SOC 1 Type I report for CookieYes as part of our third-party vendor assessment. Could you please share this? Thank you.',
+      created_at: daysAgo(1), updated_at: daysAgo(1),
+      channel: 'email', product: 'cookieyes', requester_id: 9106, assignee_id: null, organization_id: 3106,
+    },
+    requester: { id: 9106, name: 'Mei Lin', email: 'audit@financegroup.sg', tickets_count: 2, organization: 'Finance Group SG', created_at: daysAgo(120) },
+    assignee: null,
+    conversation: [
+      {
+        id: 906001, index: 1, is_agent: false, author_name: 'Mei Lin',
+        body: '<p>Hi, our internal audit team is conducting a financial controls review and needs the latest <strong>SOC 1 Type I report</strong> for CookieYes as part of our third-party vendor assessment. Could you please share this?</p>',
+        plain_body: 'Hi, our internal audit team is conducting a financial controls review and needs the latest SOC 1 Type I report for CookieYes as part of our third-party vendor assessment. Could you please share this?',
+        created_at: daysAgo(1), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12373 — Pre-sales: formal price quote request ────────────────────────
+  '12373': {
+    ticket: {
+      id: 12373, subject: 'Price quote for CookieYes — 4 domains, Ultimate annual plan',
+      status: 'open', priority: 'normal',
+      tags: ['presales', 'pricing', 'quote', 'procurement', 'ultimate'],
+      description: 'Hi, we are evaluating CookieYes for our organisation and have decided to proceed with the Ultimate annual plan for 4 of our websites. Our procurement team requires a formal price quote document to process the purchase order. Could you please send us an official quote? Our procurement contact is Carlos Santos (csantos@transre.com).',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      channel: 'email', product: 'cookieyes', requester_id: 9104, assignee_id: null, organization_id: 3104,
+    },
+    requester: { id: 9104, name: 'Carlos Santos', email: 'csantos@transre.com', tickets_count: 1, organization: 'TransRe Global', created_at: daysAgo(0) },
+    assignee: null,
+    conversation: [
+      {
+        id: 904001, index: 1, is_agent: false, author_name: 'Carlos Santos',
+        body: '<p>Hi, we have evaluated CookieYes and would like to proceed with the <strong>Ultimate plan (annual billing)</strong> for <strong>4 domains</strong>. Our procurement team requires a formal price quote to raise a purchase order internally. Could you send us an official quote? Contact: Carlos Santos, csantos@transre.com.</p>',
+        plain_body: 'Hi, we have evaluated CookieYes and would like to proceed with the Ultimate plan (annual billing) for 4 domains. Our procurement team requires a formal price quote to raise a purchase order internally. Could you send us an official quote? Contact: Carlos Santos, csantos@transre.com.',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12356 — Pre-sales: remove branding / white-label (Ultimate feature) ──
+  '12356': {
+    ticket: {
+      id: 12356, subject: 'How do I remove the "Powered by CookieYes" branding from our banner?',
+      status: 'new', priority: 'normal',
+      tags: ['presales', 'branding', 'white-label', 'ultimate', 'upgrade'],
+      description: 'We are a luxury e-commerce brand and the "Powered by CookieYes" text in the footer of our consent banner does not match our brand guidelines. Is it possible to remove it? We are currently on the Basic plan.',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      channel: 'web', product: 'cookieyes', requester_id: 9105, assignee_id: null, organization_id: null,
+    },
+    requester: { id: 9105, name: 'Sophie Laurent', email: 'hello@maisonluxe.fr', tickets_count: 1, organization: 'Maison Luxe', created_at: daysAgo(0) },
+    assignee: null,
+    conversation: [
+      {
+        id: 905001, index: 1, is_agent: false, author_name: 'Sophie Laurent',
+        body: '<p>Hello,\n\nWe run a luxury fashion e-commerce store and we are using CookieYes for our cookie consent banner. However, we have noticed there is a "Powered by CookieYes" text in the footer of the banner.\n\nOur brand guidelines require all elements on the website to be unbranded or carry only our own logo. Is it possible to remove this CookieYes branding from the banner?\n\nWe are currently on the Basic plan. Would we need to upgrade to remove it, and if so, what would the cost be?\n\nThank you,\nSophie Laurent\nMaison Luxe</p>',
+        plain_body: 'Hello, we are on the Basic plan and want to remove the "Powered by CookieYes" branding from our consent banner. Our luxury brand guidelines require unbranded elements. Would we need to upgrade? What would it cost?',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'web' },
+      },
+    ],
+  },
 };
 
 // ─── Route ────────────────────────────────────────────────────────────────────

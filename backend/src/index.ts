@@ -13,6 +13,7 @@ import { jiraRouter } from './routes/jira';
 import { authRouter } from './routes/auth';
 import { analyzeRouter } from './routes/analyze';
 import { docsRouter } from './routes/docs';
+import { certificationsRouter } from './routes/certifications';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -34,6 +35,7 @@ app.use('/api/jira', jiraRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/analyze', analyzeRouter);
 app.use('/api/docs', docsRouter);
+app.use('/api/certifications', certificationsRouter);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' }));
 

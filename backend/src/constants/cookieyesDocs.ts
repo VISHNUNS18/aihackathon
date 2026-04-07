@@ -108,7 +108,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
     title: 'Payment failed — card declined handling',
     category: 'Billing',
     tags: ['payment failed', 'card declined', 'past due', 'billing', 'stripe', 'update card', 'subscription at risk'],
-    content: `When payment fails, Stripe automatically retries up to 3 times over 7 days. Account stays active (marked "past_due") during retries. Resolution steps: (1) Send the customer a Stripe payment update link (Customer Portal) from the admin panel. (2) Ask them to add a new card and set it as default. Common decline reasons: insufficient funds, card expired, bank blocking recurring SaaS charge, card limit reached. If customer says card is valid but still declining: advise them to contact their bank to whitelist charges from "CookieYes / Mozilor" for recurring billing. Account suspension: occurs after all retries fail. Reinstate by processing a successful manual payment or waiting for the customer to update their card and triggering a retry.`,
+    content: `When payment fails, Stripe automatically retries up to 3 times over 7 days. Account stays active (marked "past_due") during retries. Resolution steps: (1) Send the customer a Stripe payment update link (Customer Portal) from the admin panel. (2) Ask them to add a new card and set it as default. Common decline reasons: insufficient funds, card expired, bank blocking recurring SaaS charge, card limit reached. If customer says card is valid but still declining: advise them to contact their bank to whitelist charges from "CookieYes" for recurring billing. Account suspension: occurs after all retries fail. Reinstate by processing a successful manual payment or waiting for the customer to update their card and triggering a retry.`,
   },
   {
     id: 'billing_downgrade',
@@ -126,7 +126,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
     title: 'GDPR compliance with CookieYes',
     category: 'Compliance',
     tags: ['gdpr', 'europe', 'eu', 'privacy', 'compliance', 'consent', 'regulation', 'dpa'],
-    content: `CookieYes is fully compliant with the EU General Data Protection Regulation (GDPR). What CookieYes handles: (1) Prior explicit consent before non-essential cookies, (2) Granular consent by category (Necessary, Analytics, Marketing, Functional), (3) Easy withdrawal — "Manage Cookies" button always accessible, (4) Consent logs stored for 3 years for audit purposes, (5) Auto-generated cookie declaration/policy page updated after each scan. Setup: Dashboard → Settings → Regulations → GDPR → Enable → set consent model to Opt-in. CookieYes acts as a data processor — customers must include CookieYes/Mozilor in their privacy policy as a sub-processor. For DPAs (Data Processing Agreements), direct to legal@cookieyes.com.`,
+    content: `CookieYes is fully compliant with the EU General Data Protection Regulation (GDPR). What CookieYes handles: (1) Prior explicit consent before non-essential cookies, (2) Granular consent by category (Necessary, Analytics, Marketing, Functional), (3) Easy withdrawal — "Manage Cookies" button always accessible, (4) Consent logs stored for 3 years for audit purposes, (5) Auto-generated cookie declaration/policy page updated after each scan. Setup: Dashboard → Settings → Regulations → GDPR → Enable → set consent model to Opt-in. CookieYes acts as a data processor — customers must include CookieYes in their privacy policy as a sub-processor. For DPAs (Data Processing Agreements), direct to legal@cookieyes.com.`,
   },
   {
     id: 'compliance_ccpa',

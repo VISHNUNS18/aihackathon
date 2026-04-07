@@ -9,6 +9,8 @@ import type { DocArticle } from '@/types/docs';
 const BILLING_TAGS   = ['refund', 'invoice', 'charge', 'payment', 'subscription', 'billing', 'downgrade'];
 const TECHNICAL_TAGS = ['banner', 'not-showing', 'not-loading', 'wp-rocket', 'cloudflare', 'cookie', 'script', 'gcm', 'gtm'];
 const PRESALES_TAGS  = ['presales', 'demo', 'evaluation', 'pricing', 'competitor', 'migration', 'trial', 'pre-sales', 'lgpd', 'pdpa', 'cookiebot', 'onetrust', 'agency'];
+const CERT_TAGS      = ['certification', 'certificate', 'tax-residency', 'gst-certificate', 'incorporation', 'soc2', 'soc1', 'iso', 'dpa', 'msme', 'pan', 'financial-statement', 'security-audit', 'nda', 'legal', 'vendor', 'mod-rfi'];
+const CERT_KEYWORDS  = ['certificate', 'certification', 'tax residency', 'trc', 'incorporation', 'soc 1', 'soc1', 'soc 2', 'soc2', 'iso 27001', 'data processing agreement', 'dpa', 'financial statement', 'annual report', 'balance sheet', 'msme', 'pan card', 'non-disclosure', 'nda', 'mod rfi', 'ministry of defence'];
 
 export function useWorkflow() {
   const store = useWorkflowStore();
@@ -29,9 +31,12 @@ export function useWorkflow() {
 
       const ticket = bundleRes.ticket;
       const allTags = [...(ticket.tags || []), (ticket.subject || '').toLowerCase()];
+      const subjectAndDesc = `${ticket.subject || ''} ${ticket.description || ''}`.toLowerCase();
       const isBilling   = BILLING_TAGS.some((t) => allTags.some((tag: string) => tag.includes(t)));
       const isTechnical = TECHNICAL_TAGS.some((t) => allTags.some((tag: string) => tag.includes(t)));
       const isPresales  = PRESALES_TAGS.some((t) => allTags.some((tag: string) => tag.includes(t)));
+      const isCert      = CERT_TAGS.some((t) => allTags.some((tag: string) => tag.includes(t)))
+                       || CERT_KEYWORDS.some((kw) => subjectAndDesc.includes(kw));
 
       // ── Skill 2 — Account Lookup ─────────────────────────────────
       store.setSkillStatus(2, 'running');
@@ -39,6 +44,16 @@ export function useWorkflow() {
       try {
         const email = bundleRes.requester?.email;
         const { data: accountRes } = await api.get(`/api/account?email=${encodeURIComponent(email)}`);
+
+        // Only accept the account if the registered (billing) email matches the
+        // requester email exactly — prevents domain-prefix fuzzy matches from
+        // loading the wrong account.
+        const registeredEmail = (accountRes.billing_email || '').toLowerCase();
+        const requesterEmail  = (email || '').toLowerCase();
+        if (registeredEmail && registeredEmail !== requesterEmail) {
+          throw new Error('Email mismatch — requester email does not match registered account email');
+        }
+
         account = accountRes;
         store.setAccount(accountRes);
         store.setSkillStatus(2, 'done');
@@ -111,6 +126,9 @@ export function useWorkflow() {
         store.setSkillStatus(5, 'skipped');
       }
 
+      // ── Cert detection flag (used by Skill 8 and UI) ─────────────
+      store.setIsCertRequest(isCert);
+
       // ── Skill 6 — Jira (manual only) ─────────────────────────────
       store.setSkillStatus(6, 'skipped');
 
@@ -133,6 +151,23 @@ export function useWorkflow() {
       store.setSkillStatus(7, 'done');
 
       parseDraftAndCategory(fullOutput, store, bundleRes, isPresales, account);
+
+      // ── Skill 8 — Cert Lookup ─────────────────────────────────────
+      // Query uses only subject + description — NOT tags — so generic tags like
+      // 'compliance' or 'audit' don't pull in unrelated certificate results.
+      if (isCert) {
+        store.setSkillStatus(8, 'running');
+        try {
+          const certQuery = [ticket.subject, (ticket.description || '').slice(0, 300)].filter(Boolean).join(' ');
+          const { data: certRes } = await api.get(`/api/certifications/search?q=${encodeURIComponent(certQuery)}`);
+          store.setCertResult(certRes);
+          store.setSkillStatus(8, certRes.found ? 'done' : 'error');
+        } catch {
+          store.setSkillStatus(8, 'error');
+        }
+      } else {
+        store.setSkillStatus(8, 'skipped');
+      }
 
       // Ticket #12366 — "enable default consent settings" is genuinely ambiguous:
       // debug shows GCM defaults are already granted, so it could mean either

@@ -72,4 +72,13 @@ export const SKILLS: SkillDefinition[] = [
     bgColor: '#ecfdf5',
     trigger: 'always_last',
   },
+  {
+    id: 8,
+    name: 'Cert Lookup',
+    shortName: 'Cert',
+    description: 'Check Google Drive for requested certificates/documents',
+    color: '#f59e0b',
+    bgColor: '#fffbeb',
+    trigger: 'always',
+  },
 ];
