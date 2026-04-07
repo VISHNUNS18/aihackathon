@@ -49,6 +49,7 @@ export interface CookieDetail {
   domain: string;
   duration: string;
   description?: string;
+  script_url_pattern?: string;
   type: 'first_party' | 'third_party';
 }
 
