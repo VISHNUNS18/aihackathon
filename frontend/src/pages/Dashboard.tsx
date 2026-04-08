@@ -19,23 +19,26 @@ interface DemoTicket {
 
 const INITIAL_TICKETS: DemoTicket[] = [
   // New
-  { id: '12367', subject: 'Cookie banner not showing on homepage',                     tag: 'Technical',    priority: 'High',   status: 'new'        },
+  { id: '12367', subject: 'Cookie banner not showing on homepage',                        tag: 'Technical',    priority: 'High',   status: 'new' },
+  { id: '12345', subject: 'Banner disappeared after WP Rocket update',                    tag: 'Technical',    priority: 'High',   status: 'new' },
+  { id: '12363', subject: 'Banner loads 3–4 seconds late — Cloudflare Rocket Loader',     tag: 'Technical',    priority: 'High',   status: 'new' },
   { id: '12370', subject: 'Tax Residency Certificate (Poland) needed for vendor onboarding', tag: 'Certification', priority: 'Normal', status: 'new' },
-  { id: '12374', subject: 'Tax Residency Certificate for Armenia required',            tag: 'Certification', priority: 'Normal', status: 'new'        },
-  { id: '12375', subject: 'SOC 1 Type I Report needed for financial audit',            tag: 'Certification', priority: 'Normal', status: 'new'        },
-  { id: '12373', subject: 'Price quote — 4 domains, Ultimate annual plan',             tag: 'Pre-sales',    priority: 'Normal', status: 'new'        },
-  { id: '12356', subject: 'How do I remove the "Powered by CookieYes" branding?',     tag: 'Pre-sales',    priority: 'Normal', status: 'new'        },
+  { id: '12374', subject: 'Tax Residency Certificate for Armenia required',                tag: 'Certification', priority: 'Normal', status: 'new' },
+  { id: '12373', subject: 'Price quote — 4 domains, Ultimate annual plan',                tag: 'Pre-sales',    priority: 'Normal', status: 'new' },
   // In Progress
-  { id: '12366', subject: 'Default consent settings not saving',                       tag: 'Technical',    priority: 'Normal', status: 'in_progress' },
-  { id: '12371', subject: 'Can you share your NDA for review and signing?',            tag: 'Legal',        priority: 'Normal', status: 'in_progress' },
-  { id: '12372', subject: 'SOC 2 Type II Report required for security due diligence',  tag: 'Certification', priority: 'High',  status: 'in_progress' },
-  { id: '12352', subject: 'Evaluating CookieYes — looking for a demo before we commit', tag: 'Pre-sales',  priority: 'Normal', status: 'in_progress' },
+  { id: '12366', subject: 'How do I enable default consent settings?',                    tag: 'Technical',    priority: 'Normal', status: 'in_progress' },
+  { id: '12361', subject: 'GCM v2 setup with Segment and HubSpot on Next.js',             tag: 'Technical',    priority: 'Normal', status: 'in_progress' },
+  { id: '12364', subject: 'Two consent banners showing — Cookiebot conflict after migration', tag: 'Technical', priority: 'High',   status: 'in_progress' },
+  { id: '12372', subject: 'SOC 2 Type II Report required for security due diligence',     tag: 'Certification', priority: 'High',  status: 'in_progress' },
+  { id: '12352', subject: 'Evaluating CookieYes — looking for a demo before we commit',   tag: 'Pre-sales',    priority: 'Normal', status: 'in_progress' },
   // Completed
-  { id: '12368', subject: 'Refund request — charged twice',                            tag: 'Billing',      priority: 'Normal', status: 'completed'  },
-  { id: '12353', subject: 'Agency plan enquiry — managing 15 client websites',         tag: 'Pre-sales',    priority: 'Normal', status: 'completed'  },
-  { id: '12354', subject: 'Does CookieYes cover LGPD (Brazil) and PDPA (Thailand)?',  tag: 'Pre-sales',    priority: 'Normal', status: 'completed'  },
+  { id: '12360', subject: 'Analytics trackers firing before consent — Shopify store',     tag: 'Technical',    priority: 'High',   status: 'completed' },
+  { id: '12365', subject: 'Verify GCM v2 setup before GDPR audit',                       tag: 'Technical',    priority: 'Normal', status: 'completed' },
+  { id: '12368', subject: 'Refund request — charged twice this month',                    tag: 'Billing',      priority: 'Normal', status: 'completed' },
+  { id: '12353', subject: 'Agency plan enquiry — managing 15 client websites',            tag: 'Pre-sales',    priority: 'Normal', status: 'completed' },
   // Forwarded
-  { id: '12355', subject: 'Switching from Cookiebot to CookieYes — migration questions', tag: 'Pre-sales', priority: 'Normal', status: 'forwarded'  },
+  { id: '12362', subject: 'Banner slow on WordPress + WooCommerce + Cloudflare',          tag: 'Technical',    priority: 'Normal', status: 'forwarded' },
+  { id: '12355', subject: 'Switching from Cookiebot to CookieYes — migration questions',  tag: 'Pre-sales',    priority: 'Normal', status: 'forwarded' },
 ];
 
 const TAG_STYLES: Record<string, string> = {

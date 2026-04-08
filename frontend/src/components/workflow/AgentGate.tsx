@@ -16,7 +16,7 @@ const TONES: { key: ToneStyle; label: string; emoji: string }[] = [
 export default function AgentGate() {
   const {
     draft, setDraft, draftVariants, bundle, account,
-    ticketId, category, infoGatheringMode,
+    category, infoGatheringMode,
     skillStatuses, jira, isRunning,
   } = useWorkflowStore();
   const { tone, setTone, customTone, setCustomTone } = useAgentStore();

@@ -836,6 +836,62 @@ const DEMO_TICKETS: Record<string, unknown> = {
       },
     ],
   },
+  // ── #99999 — Demo Bug: consent widget counters going negative ────────────
+  '99999': {
+    ticket: {
+      id: 99999,
+      subject: 'Cookie consent widget counts going negative after clicking buttons',
+      description: 'Hi, I noticed that the cookie consent widget on our site is broken. When I click "Accept All" or "Reject All", the counters go DOWN instead of up — they show negative numbers. Also the acceptance rate shows NaN% on first load.',
+      status: 'open',
+      priority: 'high',
+      tags: ['banner', 'consent-widget', 'counter-bug', 'javascript', 'demo'],
+      channel: 'web',
+      created_at: daysAgo(0),
+      updated_at: daysAgo(0),
+      product: 'cookieyes',
+      requester_id: 9099,
+      assignee_id: null,
+      organization_id: 3099,
+    },
+    requester: {
+      id: 9099,
+      name: 'Alex Johnson',
+      email: 'alex@acmestore.io',
+      tickets_count: 1,
+      organization: 'Acme Store',
+      created_at: daysAgo(30),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 9901, index: 1, is_agent: false,
+        author_id: 9099, author_name: 'Alex Johnson',
+        body: '<p>Hi support,</p><p>I added the CookieYes widget to our site and something is very wrong. When visitors click "Accept All" or "Reject All", instead of the counts going UP, they go DOWN. After a few clicks the counters show negative numbers like -3 or -7.</p><p>Also on first load it shows "NaN%" for the acceptance rate, which breaks the stats entirely.</p><p>Our site is acmestore.io and this is live in production right now with hundreds of visitors per hour. Can you please help urgently?</p>',
+        plain_body: 'Hi support,\n\nI added the CookieYes widget to our site and something is very wrong. When visitors click "Accept All" or "Reject All", instead of the counts going UP, they go DOWN. After a few clicks the counters show negative numbers like -3 or -7.\n\nAlso on first load it shows "NaN%" for the acceptance rate, which breaks the stats entirely.\n\nOur site is acmestore.io and this is live in production right now with hundreds of visitors per hour. Can you please help urgently?',
+        created_at: daysAgo(0),
+        attachments: [],
+        via: { channel: 'web' },
+      },
+      {
+        id: 9902, index: 2, is_agent: true,
+        author_id: 8001, author_name: 'Support Agent',
+        body: '<p>Hi Alex,</p><p>Thank you for reporting this. I can reproduce the issue — the consent counters are definitely decrementing instead of incrementing, and there\'s a division-by-zero error causing the NaN% on initial load.</p><p>I\'ve identified the affected component: <code>ConsentStatsWidget</code>. The root cause appears to be in the event handlers — both <code>handleAccept</code> and <code>handleReject</code> use <code>c - 1</code> instead of <code>c + 1</code>. Additionally, there is no zero-guard on the <code>acceptRate</code> calculation.</p><p>I\'m raising this as a Jira bug ticket now and triggering an AI-assisted fix. I\'ll update you once it\'s resolved.</p>',
+        plain_body: 'Hi Alex,\n\nThank you for reporting this. I can reproduce the issue — the consent counters are definitely decrementing instead of incrementing, and there\'s a division-by-zero error causing the NaN% on initial load.\n\nI\'ve identified the affected component: ConsentStatsWidget. The root cause appears to be in the event handlers — both handleAccept and handleReject use c - 1 instead of c + 1. Additionally, there is no zero-guard on the acceptRate calculation.\n\nI\'m raising this as a Jira bug ticket now and triggering an AI-assisted fix. I\'ll update you once it\'s resolved.',
+        created_at: daysAgo(0),
+        attachments: [],
+        via: { channel: 'web' },
+      },
+      {
+        id: 9903, index: 3, is_agent: false,
+        author_id: 9099, author_name: 'Alex Johnson',
+        body: '<p>Thank you! Yes please escalate this ASAP. We have hundreds of visitors per hour and none of the consent stats are reliable right now. Please let me know as soon as there\'s a fix.</p>',
+        plain_body: 'Thank you! Yes please escalate this ASAP. We have hundreds of visitors per hour and none of the consent stats are reliable right now. Please let me know as soon as there\'s a fix.',
+        created_at: daysAgo(0),
+        attachments: [],
+        via: { channel: 'web' },
+      },
+    ],
+  },
 };
 
 // ─── Route ────────────────────────────────────────────────────────────────────

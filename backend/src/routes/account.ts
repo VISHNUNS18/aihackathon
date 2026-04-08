@@ -812,6 +812,56 @@ const MOCK_ACCOUNTS = [
     two_factor: { enabled: true, method: 'totp', last_enabled_at: '2026-02-11T10:00:00Z', last_reset_at: null, reset_requested: false, reset_requested_at: null, backup_codes_remaining: 8 },
     deletion_info: { deletion_requested: false, requested_at: null, scheduled_deletion_at: null, reason: null, data_export_completed: false, gdpr_erasure_requested: false },
   },
+
+  // ── 7. Acme Store — Professional Monthly, demo bug ticket account ────────────
+  {
+    id: 'acc_demo_007',
+    billing_email: 'alex@acmestore.io',
+    plan: 'Professional',
+    plan_status: 'active',
+    billing_cycle: 'monthly',
+    next_billing_date: '2026-05-07',
+    domain: 'acmestore.io',
+    banner_active: true,
+    banner_version: '3.8.1',
+    gcm_enabled: false,
+    scanner_last_run: '2026-04-05T09:00:00Z',
+    cookies_detected: 28,
+    regulation: 'GDPR',
+    consent_template: 'GDPR',
+    iab_tcf_enabled: false,
+    geo_target: 'eu_and_uk',
+    appsumo_deal: false,
+    created_at: '2025-10-12T08:00:00Z',
+    product: 'cookieyes',
+    organization_name: 'Acme Store',
+    pageviews: {
+      views: 34200,
+      limit: 50000,
+      billing_cycle: { start: '2026-04-07', end: '2026-05-06' },
+    },
+    scan_history: [
+      { scan_date: '2026-04-05', scan_status: 'completed', urls_scanned: 12, categories: 6, cookies: 28, scripts: 11, failed_reason: null, scanned_urls: ['https://acmestore.io', 'https://acmestore.io/shop', 'https://acmestore.io/cart', 'https://acmestore.io/checkout', 'https://acmestore.io/about', 'https://acmestore.io/contact'] },
+      { scan_date: '2026-03-05', scan_status: 'completed', urls_scanned: 10, categories: 5, cookies: 24, scripts: 9,  failed_reason: null, scanned_urls: ['https://acmestore.io', 'https://acmestore.io/shop', 'https://acmestore.io/cart', 'https://acmestore.io/about'] },
+    ],
+    cookie_list: [
+      { name: 'cookieyes-consent', category: 'Necessary',    domain: 'acmestore.io', duration: '1 year',    type: 'first_party', description: 'CookieYes consent preference cookie.', script_url_pattern: 'Not available' },
+      { name: 'PHPSESSID',        category: 'Necessary',    domain: 'acmestore.io', duration: 'Session',   type: 'first_party', description: 'PHP session identifier.', script_url_pattern: 'Not available' },
+      { name: 'cart_session',     category: 'Necessary',    domain: 'acmestore.io', duration: '7 days',    type: 'first_party', description: 'Stores shopping cart contents between sessions.', script_url_pattern: 'Not available' },
+      { name: '_ga',              category: 'Analytics',    domain: '.acmestore.io',duration: '2 years',   type: 'first_party', description: 'Google Analytics — distinguishes unique users.', script_url_pattern: 'https://www.googletagmanager.com/gtag/js' },
+      { name: '_ga_XXXXXX',       category: 'Analytics',    domain: '.acmestore.io',duration: '2 years',   type: 'first_party', description: 'Google Analytics 4 session cookie.', script_url_pattern: 'https://www.googletagmanager.com/gtag/js' },
+      { name: '_fbp',             category: 'Advertisement',domain: '.acmestore.io',duration: '3 months',  type: 'first_party', description: 'Facebook Pixel tracking cookie.', script_url_pattern: 'https://connect.facebook.net/en_US/fbevents.js' },
+      { name: '__stripe_mid',     category: 'Necessary',    domain: '.stripe.com',  duration: '1 year',    type: 'third_party', description: 'Stripe fraud prevention cookie.', script_url_pattern: 'https://js.stripe.com/v3/' },
+    ],
+    website: { cms: 'Shopify', script_installed: true, script_version: '3.8.1', last_consent_logged: '2026-04-06T11:20:00Z', auto_block: false, geo_targeting: true, subdomains: [], consent_rate_percent: 63 },
+    email_activity: [
+      { type: 'invoice',       subject: 'Invoice — Professional Plan April 2026', sent_at: '2026-04-07T08:00:00Z', delivered: true, opened: true },
+      { type: 'scan_complete', subject: 'Scan complete — 28 cookies on acmestore.io', sent_at: '2026-04-05T09:05:00Z', delivered: true, opened: false },
+    ],
+    scan_overview: { total_scans: 6, last_scan_status: 'completed', cookies_by_category: { Necessary: 7, Analytics: 2, Advertisement: 1, Functional: 0 }, avg_cookies_per_scan: 26, domains_scanned: ['acmestore.io'], next_scheduled_scan: '2026-05-05T09:00:00Z' },
+    two_factor: { enabled: false, method: null, last_enabled_at: null, last_reset_at: null, reset_requested: false, reset_requested_at: null, backup_codes_remaining: 0 },
+    deletion_info: { deletion_requested: false, requested_at: null, scheduled_deletion_at: null, reason: null, data_export_completed: false, gdpr_erasure_requested: false },
+  },
 ];
 
 function findAccount(email?: string, domain?: string, id?: string) {
