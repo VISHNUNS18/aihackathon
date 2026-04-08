@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Slack, CheckCircle, Hash, AtSign, X } from 'lucide-react';
 import Modal from '@/components/shared/Modal';
-import { useWorkflowStore } from '@/store/workflowStore';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
 import { useAgentStore } from '@/store/agentStore';
 
 interface SlackModalProps {
@@ -26,7 +26,13 @@ function TargetIcon({ target }: { target: string }) {
 }
 
 export default function SlackModal({ open, onClose }: SlackModalProps) {
-  const { ticketId, account, bundle, category, jira } = useWorkflowStore();
+  const activeTicketId = useTicketQueueStore((s) => s.activeTicketId);
+  const activeTicket   = useTicketQueueStore((s) => activeTicketId ? s.tickets[activeTicketId] : undefined);
+  const ticketId = activeTicket?.ticketId ?? '';
+  const account  = activeTicket?.account  ?? null;
+  const bundle   = activeTicket?.bundle   ?? null;
+  const category = activeTicket?.category ?? '';
+  const jira     = activeTicket?.jira     ?? null;
   const { defaultChannel, setDefaultChannel } = useAgentStore();
 
   const [channelInput, setChannelInput] = useState(defaultChannel);

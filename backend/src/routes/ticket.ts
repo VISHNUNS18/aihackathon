@@ -445,6 +445,146 @@ const DEMO_TICKETS: Record<string, unknown> = {
     ],
   },
 
+  // ── #12360 — Technical: Shopify + heavy analytics stack (Wappalyzer demo) ─
+  '12360': {
+    ticket: {
+      id: 12360,
+      subject: 'Banner not blocking analytics — GDPR concern',
+      description: 'We have GA4, Hotjar and Meta Pixel running. CookieYes does not seem to block them before consent.',
+      status: 'open', priority: 'high',
+      tags: ['banner', 'analytics', 'gdpr', 'auto-block', 'shopify'],
+      channel: 'web',
+      created_at: daysAgo(1), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9060, assignee_id: null, organization_id: 3060,
+    },
+    requester: {
+      id: 9060, name: 'Nina Patel', email: 'hello@myshop.io',
+      tickets_count: 2, organization: 'MyShop', created_at: daysAgo(90),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6001, index: 1, is_agent: false,
+        author_id: 9060, author_name: 'Nina Patel',
+        body: '<p>Hi, we run a Shopify store and recently added CookieYes. We have Google Analytics 4, Hotjar, Meta Pixel and Klaviyo installed via GTM. Even after declining cookies, I can see these trackers firing in the network tab. Is auto-block supposed to stop these? GDPR compliance is critical for us as we sell to EU customers.</p>',
+        plain_body: 'Hi, we run a Shopify store and recently added CookieYes. We have Google Analytics 4, Hotjar, Meta Pixel and Klaviyo installed via GTM. Even after declining cookies, I can see these trackers firing in the network tab. Is auto-block supposed to stop these? GDPR compliance is critical for us as we sell to EU customers.',
+        created_at: daysAgo(1), attachments: [], via: { channel: 'web' },
+      },
+    ],
+  },
+
+  // ── #12361 — Technical: Next.js SaaS, GCM + Segment setup (Wappalyzer demo)
+  '12361': {
+    ticket: {
+      id: 12361,
+      subject: 'How to configure GCM with Segment and HubSpot?',
+      description: 'We use Next.js with Segment and HubSpot. Need to set up Google Consent Mode properly.',
+      status: 'open', priority: 'normal',
+      tags: ['gcm', 'gtm', 'technical', 'segment', 'vercel'],
+      channel: 'email',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9061, assignee_id: null, organization_id: 3061,
+    },
+    requester: {
+      id: 9061, name: 'Tom Wren', email: 'dev@appstack.dev',
+      tickets_count: 1, organization: 'AppStack', created_at: daysAgo(45),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6101, index: 1, is_agent: false,
+        author_id: 9061, author_name: 'Tom Wren',
+        body: '<p>Hey, we are a Next.js SaaS deployed on Vercel. We have Segment for analytics, HubSpot for CRM, Stripe for payments and Intercom for support. We want to implement Google Consent Mode v2 so our ad conversions still work even when users decline analytics cookies. Can you walk me through the correct CookieYes GCM setup for this stack?</p>',
+        plain_body: 'Hey, we are a Next.js SaaS deployed on Vercel. We have Segment for analytics, HubSpot for CRM, Stripe for payments and Intercom for support. We want to implement Google Consent Mode v2 so our ad conversions still work even when users decline analytics cookies. Can you walk me through the correct CookieYes GCM setup for this stack?',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12362 — Technical: WordPress + WooCommerce + WP Rocket conflict ────────
+  '12362': {
+    ticket: {
+      id: 12362,
+      subject: 'Cookie banner gone after installing WP Rocket on WooCommerce site',
+      description: 'We run WooCommerce and just installed WP Rocket for performance. The cookie banner vanished immediately.',
+      status: 'open', priority: 'high',
+      tags: ['banner', 'not-loading', 'wp-rocket', 'wordpress', 'woocommerce', 'caching'],
+      channel: 'web',
+      created_at: daysAgo(2), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9062, assignee_id: null, organization_id: 3062,
+    },
+    requester: {
+      id: 9062, name: 'Rosa Meier', email: 'support@blogpress.net',
+      tickets_count: 1, organization: 'BlogPress', created_at: daysAgo(180),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6201, index: 1, is_agent: false,
+        author_id: 9062, author_name: 'Rosa Meier',
+        body: '<p>Hello, we have a WooCommerce store on WordPress. We installed WP Rocket two days ago for speed optimization and the CookieYes banner completely disappeared. We also use Hotjar and Google Tag Manager. I have tried disabling WP Rocket and the banner comes back immediately so it is definitely WP Rocket causing this. We have JS minification and Delay JS Execution turned on. Can you tell me exactly what to exclude in WP Rocket settings?</p>',
+        plain_body: 'Hello, we have a WooCommerce store on WordPress. We installed WP Rocket two days ago for speed optimization and the CookieYes banner completely disappeared. We also use Hotjar and Google Tag Manager. I have tried disabling WP Rocket and the banner comes back immediately so it is definitely WP Rocket causing this. We have JS minification and Delay JS Execution turned on. Can you tell me exactly what to exclude in WP Rocket settings?',
+        created_at: daysAgo(2), attachments: [], via: { channel: 'web' },
+      },
+    ],
+  },
+
+  // ── #12363 — Technical: Legacy marketing site, Cloudflare + HubSpot + GTM ──
+  '12363': {
+    ticket: {
+      id: 12363,
+      subject: 'Banner loads slowly — Cloudflare Rocket Loader suspected',
+      description: 'Our marketing site uses Cloudflare and the consent banner appears 3-4 seconds after page load, causing a flash of unblocked content.',
+      status: 'open', priority: 'normal',
+      tags: ['banner', 'cloudflare', 'cdn', 'performance', 'technical'],
+      channel: 'email',
+      created_at: daysAgo(1), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9063, assignee_id: null, organization_id: 3063,
+    },
+    requester: {
+      id: 9063, name: 'Marc Dubois', email: 'tech@brandsite.co',
+      tickets_count: 3, organization: 'BrandSite', created_at: daysAgo(300),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6301, index: 1, is_agent: false,
+        author_id: 9063, author_name: 'Marc Dubois',
+        body: '<p>Hi, our website runs on WordPress with Cloudflare in front. We use HubSpot for marketing, Mailchimp for email, GTM for tag management and reCAPTCHA for forms. The CookieYes banner takes 3 to 4 seconds to appear after the page loads, which means trackers like HubSpot and Mailchimp fire before the user can consent. I think Cloudflare Rocket Loader might be the issue. What should I configure?</p>',
+        plain_body: 'Hi, our website runs on WordPress with Cloudflare in front. We use HubSpot for marketing, Mailchimp for email, GTM for tag management and reCAPTCHA for forms. The CookieYes banner takes 3 to 4 seconds to appear after the page loads, which means trackers like HubSpot and Mailchimp fire before the user can consent. I think Cloudflare Rocket Loader might be the issue. What should I configure?',
+        created_at: daysAgo(1), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12364 — Technical: Competing CMP (Cookiebot still active) ───────────
+  '12364': {
+    ticket: {
+      id: 12364,
+      subject: 'Two consent banners showing — Cookiebot and CookieYes conflict',
+      description: 'After migrating to CookieYes we now see two cookie banners on our site. Cookiebot script appears to still be running.',
+      status: 'open', priority: 'urgent',
+      tags: ['banner', 'conflict_cmp', 'cookiebot', 'technical', 'react'],
+      channel: 'web',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9064, assignee_id: null, organization_id: 3064,
+    },
+    requester: {
+      id: 9064, name: 'Lena Koch', email: 'dev@techventure.io',
+      tickets_count: 1, organization: 'TechVenture', created_at: daysAgo(20),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6401, index: 1, is_agent: false,
+        author_id: 9064, author_name: 'Lena Koch',
+        body: '<p>Hi, we just migrated from Cookiebot to CookieYes on our React app. We removed the Cookiebot script from GTM but we are still seeing two consent banners appearing — one from Cookiebot and one from CookieYes. We also use Google Analytics 4 and Segment. Visitors are getting two consent prompts which is terrible UX. How do we fully remove Cookiebot and make sure only CookieYes runs?</p>',
+        plain_body: 'Hi, we just migrated from Cookiebot to CookieYes on our React app. We removed the Cookiebot script from GTM but we are still seeing two consent banners appearing — one from Cookiebot and one from CookieYes. We also use Google Analytics 4 and Segment. Visitors are getting two consent prompts which is terrible UX. How do we fully remove Cookiebot and make sure only CookieYes runs?',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'web' },
+      },
+    ],
+  },
+
   // ── #12347 — Account: 2FA locked out, AppSumo user ───────────────────────
   '12347': {
     ticket: {
@@ -480,6 +620,275 @@ const DEMO_TICKETS: Record<string, unknown> = {
         created_at: daysAgo(0),
         attachments: [],
         via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12366 — Ambiguous: "enable default consent settings" ───────────────────
+  // GCM debug shows consent defaults are already correctly configured.
+  // Could mean: (A) enable/verify GCM default consent — already done
+  //             (B) enable "Load cookies prior to consent" in banner settings
+  '12366': {
+    ticket: {
+      id: 12366,
+      subject: 'I want to enable my default consent settings',
+      description: 'I want to enable the default consent settings on my website. Can you help me set this up?',
+      status: 'open', priority: 'normal',
+      tags: ['gcm', 'gtm', 'technical', 'consent'],
+      channel: 'web',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9066, assignee_id: null, organization_id: 3066,
+    },
+    requester: {
+      id: 9066, name: 'James Okafor', email: 'admin@consentdemo.io',
+      tickets_count: 1, organization: 'ConsentDemo', created_at: daysAgo(148),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6601, index: 1, is_agent: false,
+        author_id: 9066, author_name: 'James Okafor',
+        body: '<p>Hi, I want to enable the default consent settings on my website. I have CookieYes installed with Google Tag Manager and Google Analytics 4. I just want to make sure that by default, consent is enabled for my visitors. Can you help me get this set up correctly? Our site is consentdemo.io.</p>',
+        plain_body: 'Hi, I want to enable the default consent settings on my website. I have CookieYes installed with Google Tag Manager and Google Analytics 4. I just want to make sure that by default, consent is enabled for my visitors. Can you help me get this set up correctly? Our site is consentdemo.io.',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'web' },
+      },
+    ],
+  },
+
+  // ── #12365 — GCM v2 verification — all categories correct ───────────────────
+  '12365': {
+    ticket: {
+      id: 12365,
+      subject: 'Please verify our Google Consent Mode v2 setup is correct',
+      description: 'We recently implemented GCM v2 with CookieYes and want to confirm everything is configured correctly before our GDPR audit next week.',
+      status: 'open', priority: 'normal',
+      tags: ['gcm', 'gtm', 'gdpr', 'technical', 'verification'],
+      channel: 'email',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9065, assignee_id: null, organization_id: 3065,
+    },
+    requester: {
+      id: 9065, name: 'Clara Hoffman', email: 'privacy@gcmready.io',
+      tickets_count: 1, organization: 'GCMReady', created_at: daysAgo(60),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 6501, index: 1, is_agent: false,
+        author_id: 9065, author_name: 'Clara Hoffman',
+        body: '<p>Hi CookieYes team, we implemented Google Consent Mode v2 on our website last month using your GCM integration guide. We have an external GDPR audit coming up next week and our auditor has asked us to confirm that consent defaults are set before any tags fire, and that all six GCM v2 categories are correctly configured. Can you verify our setup at gcmready.io looks correct? We use Google Tag Manager with GA4 and Google Ads.</p>',
+        plain_body: 'Hi CookieYes team, we implemented Google Consent Mode v2 on our website last month using your GCM integration guide. We have an external GDPR audit coming up next week and our auditor has asked us to confirm that consent defaults are set before any tags fire, and that all six GCM v2 categories are correctly configured. Can you verify our setup at gcmready.io looks correct? We use Google Tag Manager with GA4 and Google Ads.',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12370 — Cert: Tax Residency Certificate 2025 — Poland (found in Drive)
+  '12370': {
+    ticket: {
+      id: 12370, subject: 'Tax Residency Certificate (Poland) needed for vendor onboarding',
+      status: 'open', priority: 'normal',
+      tags: ['certification', 'tax-residency', 'certificate', 'vendor', 'finance', 'poland'],
+      description: 'Hi, we are onboarding CookieYes as a vendor in our Polish procurement system. Our finance team requires a Tax Residency Certificate for Poland for 2025 to process the payment. Could you please provide this document? We need it ASAP as our vendor registration deadline is end of this week. Thanks.',
+      created_at: daysAgo(1), updated_at: daysAgo(1),
+      channel: 'email', product: 'cookieyes', requester_id: 9101, assignee_id: null, organization_id: 3101,
+    },
+    requester: { id: 9101, name: 'Sarah Mitchell', email: 'sarah.mitchell@enterprisecorp.com', tickets_count: 2, organization: 'EnterpriseCorp Inc.', created_at: daysAgo(90) },
+    assignee: null,
+    conversation: [
+      {
+        id: 901001, index: 1, is_agent: false, author_name: 'Sarah Mitchell',
+        body: '<p>Hi, we are onboarding CookieYes as a vendor in our Polish procurement system. Our finance team requires a <strong>Tax Residency Certificate for Poland (2025)</strong> to process the payment. Could you please provide this document? We need it ASAP as our vendor registration deadline is end of this week.</p>',
+        plain_body: 'Hi, we are onboarding CookieYes as a vendor in our Polish procurement system. Our finance team requires a Tax Residency Certificate for Poland (2025) to process the payment. Could you please provide this document? We need it ASAP as our vendor registration deadline is end of this week.',
+        created_at: daysAgo(1), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12371 — Cert: NDA request ────────────────────────────────────────────
+  '12371': {
+    ticket: {
+      id: 12371, subject: 'Can you share your NDA for review and signing?',
+      status: 'open', priority: 'normal',
+      tags: ['certification', 'nda', 'legal', 'compliance', 'certificate'],
+      description: 'Hi, before we proceed with our evaluation of CookieYes for our organisation, our legal team requires a signed Non-Disclosure Agreement (NDA) to be in place. Could you please share your standard NDA template so we can review it and have our legal team countersign? Thank you.',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      channel: 'email', product: 'cookieyes', requester_id: 9102, assignee_id: null, organization_id: 3102,
+    },
+    requester: { id: 9102, name: 'Priya Mehta', email: 'legal@brightwave.io', tickets_count: 1, organization: 'BrightWave Technologies', created_at: daysAgo(30) },
+    assignee: null,
+    conversation: [
+      {
+        id: 902001, index: 1, is_agent: false, author_name: 'Priya Mehta',
+        body: '<p>Hi, before we proceed with our evaluation of CookieYes, our legal team requires a signed <strong>Non-Disclosure Agreement (NDA)</strong> to be in place. Could you please share your standard NDA template so we can review and countersign it?</p>',
+        plain_body: 'Hi, before we proceed with our evaluation of CookieYes, our legal team requires a signed Non-Disclosure Agreement (NDA) to be in place. Could you please share your standard NDA template so we can review and countersign it?',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12372 — Cert: SOC 2 Type II (available via Trust Center) ───────────
+  '12372': {
+    ticket: {
+      id: 12372, subject: 'SOC 2 Type II Report required for security due diligence',
+      status: 'open', priority: 'high',
+      tags: ['certification', 'soc2', 'security-audit', 'compliance', 'certificate', 'due-diligence'],
+      description: 'Hi CookieYes team, our security team is conducting a vendor risk assessment and requires the latest SOC 2 Type II report for CookieYes. This is required before we can sign our annual contract renewal. Our deadline is April 15.',
+      created_at: daysAgo(2), updated_at: daysAgo(2),
+      channel: 'email', product: 'cookieyes', requester_id: 9103, assignee_id: null, organization_id: 3103,
+    },
+    requester: { id: 9103, name: 'James Whitfield', email: 'j.whitfield@securecorp.io', tickets_count: 3, organization: 'SecureCorp Ltd', created_at: daysAgo(200) },
+    assignee: null,
+    conversation: [
+      {
+        id: 903001, index: 1, is_agent: false, author_name: 'James Whitfield',
+        body: '<p>Hi, our security team is conducting a <strong>vendor risk assessment</strong> and requires the latest <strong>SOC 2 Type II report</strong> for CookieYes. Required before our annual contract renewal. Deadline: April 15.</p>',
+        plain_body: 'Hi, our security team is conducting a vendor risk assessment and requires the latest SOC 2 Type II report for CookieYes. Required before our annual contract renewal. Deadline: April 15.',
+        created_at: daysAgo(2), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12374 — Cert: Tax Residency — Armenia (NOT available → escalation) ───
+  '12374': {
+    ticket: {
+      id: 12374, subject: 'Tax Residency Certificate for Armenia required — vendor registration',
+      status: 'open', priority: 'normal',
+      tags: ['certification', 'tax-residency', 'certificate', 'vendor', 'finance', 'armenia'],
+      description: 'Hi, we are registering CookieYes as a vendor with our procurement system in Armenia. Our finance team requires a Tax Residency Certificate for Armenia for 2025. Could you please provide this document at the earliest? Our vendor onboarding deadline is next Friday.',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      channel: 'email', product: 'cookieyes', requester_id: 9105, assignee_id: null, organization_id: 3105,
+    },
+    requester: { id: 9105, name: 'Armen Petrosyan', email: 'finance@armeniaprocure.am', tickets_count: 1, organization: 'Armenia Procurement Ltd', created_at: daysAgo(10) },
+    assignee: null,
+    conversation: [
+      {
+        id: 905001, index: 1, is_agent: false, author_name: 'Armen Petrosyan',
+        body: '<p>Hi, we are registering CookieYes as a vendor in our Armenian procurement system. Our finance team requires a <strong>Tax Residency Certificate for Armenia (2025)</strong>. Could you please share this at the earliest? Deadline is next Friday.</p>',
+        plain_body: 'Hi, we are registering CookieYes as a vendor in our Armenian procurement system. Our finance team requires a Tax Residency Certificate for Armenia (2025). Could you please share this at the earliest? Deadline is next Friday.',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12375 — Cert: SOC 1 Type I (available via Trust Center) ─────────────
+  '12375': {
+    ticket: {
+      id: 12375, subject: 'SOC 1 Type I Report needed for financial audit',
+      status: 'open', priority: 'normal',
+      tags: ['certification', 'soc1', 'security-audit', 'compliance', 'certificate', 'financial-controls'],
+      description: 'Hi CookieYes team, our internal audit team is conducting a financial controls review and needs the latest SOC 1 Type I report for CookieYes as part of our third-party vendor assessment. Could you please share this? Thank you.',
+      created_at: daysAgo(1), updated_at: daysAgo(1),
+      channel: 'email', product: 'cookieyes', requester_id: 9106, assignee_id: null, organization_id: 3106,
+    },
+    requester: { id: 9106, name: 'Mei Lin', email: 'audit@financegroup.sg', tickets_count: 2, organization: 'Finance Group SG', created_at: daysAgo(120) },
+    assignee: null,
+    conversation: [
+      {
+        id: 906001, index: 1, is_agent: false, author_name: 'Mei Lin',
+        body: '<p>Hi, our internal audit team is conducting a financial controls review and needs the latest <strong>SOC 1 Type I report</strong> for CookieYes as part of our third-party vendor assessment. Could you please share this?</p>',
+        plain_body: 'Hi, our internal audit team is conducting a financial controls review and needs the latest SOC 1 Type I report for CookieYes as part of our third-party vendor assessment. Could you please share this?',
+        created_at: daysAgo(1), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12373 — Pre-sales: formal price quote request ────────────────────────
+  '12373': {
+    ticket: {
+      id: 12373, subject: 'Price quote for CookieYes — 4 domains, Ultimate annual plan',
+      status: 'open', priority: 'normal',
+      tags: ['presales', 'pricing', 'quote', 'procurement', 'ultimate'],
+      description: 'Hi, we are evaluating CookieYes for our organisation and have decided to proceed with the Ultimate annual plan for 4 of our websites. Our procurement team requires a formal price quote document to process the purchase order. Could you please send us an official quote? Our procurement contact is Carlos Santos (csantos@transre.com).',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      channel: 'email', product: 'cookieyes', requester_id: 9104, assignee_id: null, organization_id: 3104,
+    },
+    requester: { id: 9104, name: 'Carlos Santos', email: 'csantos@transre.com', tickets_count: 1, organization: 'TransRe Global', created_at: daysAgo(0) },
+    assignee: null,
+    conversation: [
+      {
+        id: 904001, index: 1, is_agent: false, author_name: 'Carlos Santos',
+        body: '<p>Hi, we have evaluated CookieYes and would like to proceed with the <strong>Ultimate plan (annual billing)</strong> for <strong>4 domains</strong>. Our procurement team requires a formal price quote to raise a purchase order internally. Could you send us an official quote? Contact: Carlos Santos, csantos@transre.com.</p>',
+        plain_body: 'Hi, we have evaluated CookieYes and would like to proceed with the Ultimate plan (annual billing) for 4 domains. Our procurement team requires a formal price quote to raise a purchase order internally. Could you send us an official quote? Contact: Carlos Santos, csantos@transre.com.',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
+  // ── #12356 — Pre-sales: remove branding / white-label (Ultimate feature) ──
+  '12356': {
+    ticket: {
+      id: 12356, subject: 'How do I remove the "Powered by CookieYes" branding from our banner?',
+      status: 'new', priority: 'normal',
+      tags: ['presales', 'branding', 'white-label', 'ultimate', 'upgrade'],
+      description: 'We are a luxury e-commerce brand and the "Powered by CookieYes" text in the footer of our consent banner does not match our brand guidelines. Is it possible to remove it? We are currently on the Basic plan.',
+      created_at: daysAgo(0), updated_at: daysAgo(0),
+      channel: 'web', product: 'cookieyes', requester_id: 9105, assignee_id: null, organization_id: null,
+    },
+    requester: { id: 9105, name: 'Sophie Laurent', email: 'hello@maisonluxe.fr', tickets_count: 1, organization: 'Maison Luxe', created_at: daysAgo(0) },
+    assignee: null,
+    conversation: [
+      {
+        id: 905001, index: 1, is_agent: false, author_name: 'Sophie Laurent',
+        body: '<p>Hello,\n\nWe run a luxury fashion e-commerce store and we are using CookieYes for our cookie consent banner. However, we have noticed there is a "Powered by CookieYes" text in the footer of the banner.\n\nOur brand guidelines require all elements on the website to be unbranded or carry only our own logo. Is it possible to remove this CookieYes branding from the banner?\n\nWe are currently on the Basic plan. Would we need to upgrade to remove it, and if so, what would the cost be?\n\nThank you,\nSophie Laurent\nMaison Luxe</p>',
+        plain_body: 'Hello, we are on the Basic plan and want to remove the "Powered by CookieYes" branding from our consent banner. Our luxury brand guidelines require unbranded elements. Would we need to upgrade? What would it cost?',
+        created_at: daysAgo(0), attachments: [], via: { channel: 'web' },
+      },
+    ],
+  },
+  // ── #99999 — Demo Bug: consent widget counters going negative ────────────
+  '99999': {
+    ticket: {
+      id: 99999,
+      subject: 'Cookie consent widget counts going negative after clicking buttons',
+      description: 'Hi, I noticed that the cookie consent widget on our site is broken. When I click "Accept All" or "Reject All", the counters go DOWN instead of up — they show negative numbers. Also the acceptance rate shows NaN% on first load.',
+      status: 'open',
+      priority: 'high',
+      tags: ['banner', 'consent-widget', 'counter-bug', 'javascript', 'demo'],
+      channel: 'web',
+      created_at: daysAgo(0),
+      updated_at: daysAgo(0),
+      product: 'cookieyes',
+      requester_id: 9099,
+      assignee_id: null,
+      organization_id: 3099,
+    },
+    requester: {
+      id: 9099,
+      name: 'Alex Johnson',
+      email: 'alex@acmestore.io',
+      tickets_count: 1,
+      organization: 'Acme Store',
+      created_at: daysAgo(30),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 9901, index: 1, is_agent: false,
+        author_id: 9099, author_name: 'Alex Johnson',
+        body: '<p>Hi support,</p><p>I added the CookieYes widget to our site and something is very wrong. When visitors click "Accept All" or "Reject All", instead of the counts going UP, they go DOWN. After a few clicks the counters show negative numbers like -3 or -7.</p><p>Also on first load it shows "NaN%" for the acceptance rate, which breaks the stats entirely.</p><p>Our site is acmestore.io and this is live in production right now with hundreds of visitors per hour. Can you please help urgently?</p>',
+        plain_body: 'Hi support,\n\nI added the CookieYes widget to our site and something is very wrong. When visitors click "Accept All" or "Reject All", instead of the counts going UP, they go DOWN. After a few clicks the counters show negative numbers like -3 or -7.\n\nAlso on first load it shows "NaN%" for the acceptance rate, which breaks the stats entirely.\n\nOur site is acmestore.io and this is live in production right now with hundreds of visitors per hour. Can you please help urgently?',
+        created_at: daysAgo(0),
+        attachments: [],
+        via: { channel: 'web' },
+      },
+      {
+        id: 9902, index: 2, is_agent: true,
+        author_id: 8001, author_name: 'Support Agent',
+        body: '<p>Hi Alex,</p><p>Thank you for reporting this. I can reproduce the issue — the consent counters are definitely decrementing instead of incrementing, and there\'s a division-by-zero error causing the NaN% on initial load.</p><p>I\'ve identified the affected component: <code>ConsentStatsWidget</code>. The root cause appears to be in the event handlers — both <code>handleAccept</code> and <code>handleReject</code> use <code>c - 1</code> instead of <code>c + 1</code>. Additionally, there is no zero-guard on the <code>acceptRate</code> calculation.</p><p>I\'m raising this as a Jira bug ticket now and triggering an AI-assisted fix. I\'ll update you once it\'s resolved.</p>',
+        plain_body: 'Hi Alex,\n\nThank you for reporting this. I can reproduce the issue — the consent counters are definitely decrementing instead of incrementing, and there\'s a division-by-zero error causing the NaN% on initial load.\n\nI\'ve identified the affected component: ConsentStatsWidget. The root cause appears to be in the event handlers — both handleAccept and handleReject use c - 1 instead of c + 1. Additionally, there is no zero-guard on the acceptRate calculation.\n\nI\'m raising this as a Jira bug ticket now and triggering an AI-assisted fix. I\'ll update you once it\'s resolved.',
+        created_at: daysAgo(0),
+        attachments: [],
+        via: { channel: 'web' },
+      },
+      {
+        id: 9903, index: 3, is_agent: false,
+        author_id: 9099, author_name: 'Alex Johnson',
+        body: '<p>Thank you! Yes please escalate this ASAP. We have hundreds of visitors per hour and none of the consent stats are reliable right now. Please let me know as soon as there\'s a fix.</p>',
+        plain_body: 'Thank you! Yes please escalate this ASAP. We have hundreds of visitors per hour and none of the consent stats are reliable right now. Please let me know as soon as there\'s a fix.',
+        created_at: daysAgo(0),
+        attachments: [],
+        via: { channel: 'web' },
       },
     ],
   },

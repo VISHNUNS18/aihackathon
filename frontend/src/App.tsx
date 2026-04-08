@@ -5,7 +5,7 @@ import TicketDesk from '@/pages/TicketDesk';
 import TicketHistory from '@/pages/TicketHistory';
 import TeamView from '@/pages/TeamView';
 import Settings from '@/pages/Settings';
-
+import BugDemo from '@/pages/BugDemo';
 export default function App() {
   return (
     <AppShell>
@@ -17,6 +17,7 @@ export default function App() {
         <Route path="/history" element={<TicketHistory />} />
         <Route path="/team" element={<TeamView />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/bug-demo" element={<BugDemo />} />
       </Routes>
     </AppShell>
   );

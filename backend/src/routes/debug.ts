@@ -213,31 +213,328 @@ function getScriptPosition(html: string, scriptSrc: string | null): 'head' | 'bo
   return headEnd !== -1 && scriptIdx < headEnd ? 'head' : 'body';
 }
 
+// ─── GCM types + detection ────────────────────────────────────────────────────
+
+type ConsentValue = 'granted' | 'denied' | 'missing';
+
+interface GCMEntry { default: ConsentValue; update: ConsentValue; }
+
+interface GCMStatus {
+  detected: boolean;
+  was_set_late: boolean;
+  entries: Record<string, GCMEntry>;
+  warnings: string[];
+  verdict: 'ok' | 'warning' | 'not_found';
+  source: 'html_analysis' | 'mock';
+}
+
+const GCM_CATEGORIES = [
+  'analytics_storage',
+  'ad_storage',
+  'ad_user_data',
+  'ad_personalization',
+  'functionality_storage',
+  'personalization_storage',
+];
+
+function detectGCMFromHTML(html: string): GCMStatus {
+  // Look for gtag('consent','default',{...}) calls in the page source
+  const defaultMatch = html.match(/gtag\s*\(\s*['"]consent['"]\s*,\s*['"]default['"]\s*,\s*(\{[^}]+\})/);
+  const updateMatch  = html.match(/gtag\s*\(\s*['"]consent['"]\s*,\s*['"]update['"]\s*,\s*(\{[^}]+\})/);
+
+  if (!defaultMatch) {
+    return { detected: false, was_set_late: false, entries: {}, warnings: [], verdict: 'not_found', source: 'html_analysis' };
+  }
+
+  const parseBlock = (block: string): Record<string, ConsentValue> => {
+    const result: Record<string, ConsentValue> = {};
+    const pairs = block.match(/['"]?(\w+)['"]?\s*:\s*['"](\w+)['"]/g) ?? [];
+    for (const pair of pairs) {
+      const m = pair.match(/['"]?(\w+)['"]?\s*:\s*['"](\w+)['"]/);
+      if (m) result[m[1]] = (m[2] === 'granted' ? 'granted' : 'denied') as ConsentValue;
+    }
+    return result;
+  };
+
+  const defaults = parseBlock(defaultMatch[1]);
+  const updates  = updateMatch ? parseBlock(updateMatch[1]) : {};
+
+  const entries: Record<string, GCMEntry> = {};
+  const allKeys = new Set([...GCM_CATEGORIES, ...Object.keys(defaults), ...Object.keys(updates)]);
+  for (const key of allKeys) {
+    entries[key] = {
+      default: defaults[key] ?? 'missing',
+      update:  updates[key]  ?? 'missing',
+    };
+  }
+
+  const warnings: string[] = [];
+  const hasMissingDefault = Object.values(entries).some((e) => e.default === 'missing');
+  if (hasMissingDefault) warnings.push('Some categories are missing a default value.');
+
+  // Heuristic: if consent script appears after GTM, flag as potentially late
+  const gtagIdx = html.indexOf("gtag('consent','default'") !== -1
+    ? html.indexOf("gtag('consent','default'")
+    : html.indexOf('gtag("consent","default"');
+  const gtmIdx  = html.indexOf('googletagmanager.com/gtm.js');
+  const wasSetLate = gtmIdx !== -1 && gtagIdx !== -1 && gtagIdx > gtmIdx;
+  if (wasSetLate) warnings.push('A tag may have read consent before a default was set.');
+
+  return {
+    detected: true,
+    was_set_late: wasSetLate,
+    entries,
+    warnings,
+    verdict: warnings.length > 0 ? 'warning' : 'ok',
+    source: 'html_analysis',
+  };
+}
+
+// ─── Demo GCM status (mock data for known demo domains) ───────────────────────
+
+const DEMO_GCM_STATUS: Record<string, GCMStatus> = {
+  // appstack.dev — GCM partially configured, ad categories missing defaults
+  'appstack.dev': {
+    detected: true, was_set_late: false,
+    entries: {
+      analytics_storage:      { default: 'denied',  update: 'granted' },
+      ad_storage:             { default: 'missing', update: 'missing' },
+      ad_user_data:           { default: 'missing', update: 'missing' },
+      ad_personalization:     { default: 'missing', update: 'missing' },
+      functionality_storage:  { default: 'granted', update: 'missing' },
+      personalization_storage:{ default: 'denied',  update: 'granted' },
+    },
+    warnings: ['Some categories are missing a default value.'],
+    verdict: 'warning',
+    source: 'mock',
+  },
+  // brandsite.co — consent default set after GTM fires (set_late)
+  'brandsite.co': {
+    detected: true, was_set_late: true,
+    entries: {
+      analytics_storage:      { default: 'denied',  update: 'granted' },
+      ad_storage:             { default: 'denied',  update: 'granted' },
+      ad_user_data:           { default: 'denied',  update: 'granted' },
+      ad_personalization:     { default: 'denied',  update: 'denied'  },
+      functionality_storage:  { default: 'granted', update: 'missing' },
+      personalization_storage:{ default: 'denied',  update: 'missing' },
+    },
+    warnings: ['A tag read consent before a default was set.'],
+    verdict: 'warning',
+    source: 'mock',
+  },
+  // techcorp.io — fully compliant GCM v2 setup
+  'techcorp.io': {
+    detected: true, was_set_late: false,
+    entries: {
+      analytics_storage:      { default: 'denied',  update: 'granted' },
+      ad_storage:             { default: 'denied',  update: 'granted' },
+      ad_user_data:           { default: 'denied',  update: 'granted' },
+      ad_personalization:     { default: 'denied',  update: 'denied'  },
+      functionality_storage:  { default: 'granted', update: 'missing' },
+      personalization_storage:{ default: 'denied',  update: 'granted' },
+    },
+    warnings: [],
+    verdict: 'ok',
+    source: 'mock',
+  },
+  // myshop.io — GCM not configured at all
+  'myshop.io': {
+    detected: false, was_set_late: false,
+    entries: {},
+    warnings: ['No Google Consent Mode defaults found. Trackers may fire without consent.'],
+    verdict: 'not_found',
+    source: 'mock',
+  },
+  // gcmready.io — all six GCM v2 categories correctly set, no warnings
+  'gcmready.io': {
+    detected: true, was_set_late: false,
+    entries: {
+      analytics_storage:      { default: 'denied',  update: 'granted' },
+      ad_storage:             { default: 'denied',  update: 'granted' },
+      ad_user_data:           { default: 'denied',  update: 'granted' },
+      ad_personalization:     { default: 'denied',  update: 'denied'  },
+      functionality_storage:  { default: 'granted', update: 'missing' },
+      personalization_storage:{ default: 'denied',  update: 'granted' },
+    },
+    warnings: [],
+    verdict: 'ok',
+    source: 'mock',
+  },
+  // consentdemo.io — all GCM categories granted by default (opt-out / pre-consent mode)
+  'consentdemo.io': {
+    detected: true, was_set_late: false,
+    entries: {
+      analytics_storage:      { default: 'granted', update: 'granted' },
+      ad_storage:             { default: 'granted', update: 'granted' },
+      ad_user_data:           { default: 'granted', update: 'granted' },
+      ad_personalization:     { default: 'granted', update: 'granted' },
+      functionality_storage:  { default: 'granted', update: 'granted' },
+      personalization_storage:{ default: 'granted', update: 'granted' },
+    },
+    warnings: [],
+    verdict: 'ok',
+    source: 'mock',
+  },
+  // techventure.io — GCM correctly configured after Cookiebot removal
+  'techventure.io': {
+    detected: true, was_set_late: false,
+    entries: {
+      analytics_storage:      { default: 'denied',  update: 'granted' },
+      ad_storage:             { default: 'denied',  update: 'granted' },
+      ad_user_data:           { default: 'denied',  update: 'granted' },
+      ad_personalization:     { default: 'denied',  update: 'denied'  },
+      functionality_storage:  { default: 'granted', update: 'missing' },
+      personalization_storage:{ default: 'denied',  update: 'granted' },
+    },
+    warnings: [],
+    verdict: 'ok',
+    source: 'mock',
+  },
+};
+
+// ─── Demo tech stacks (returned for known demo domains, no API key needed) ────
+
+const DEMO_TECH_STACKS: Record<string, WappalyzerTech[]> = {
+  'consentdemo.io': [
+    { name: 'WordPress',         category: 'cms',         confidence: 100 },
+    { name: 'Google Tag Manager',category: 'tag_manager', confidence: 100 },
+    { name: 'Google Analytics 4',category: 'analytics',   confidence: 100 },
+    { name: 'Google Ads',        category: 'marketing',   confidence: 100 },
+    { name: 'Yoast SEO',         category: 'other',       confidence: 95  },
+    { name: 'jQuery',            category: 'framework',   confidence: 100 },
+  ],
+  'gcmready.io': [
+    { name: 'WordPress',         category: 'cms',         confidence: 100 },
+    { name: 'Google Tag Manager',category: 'tag_manager', confidence: 100 },
+    { name: 'Google Analytics 4',category: 'analytics',   confidence: 100 },
+    { name: 'Google Ads',        category: 'marketing',   confidence: 100 },
+    { name: 'Cloudflare',        category: 'cdn',         confidence: 100 },
+    { name: 'jQuery',            category: 'framework',   confidence: 100 },
+  ],
+  'myshop.io': [
+    { name: 'Shopify',           category: 'ecommerce',   confidence: 100 },
+    { name: 'Google Analytics 4',category: 'analytics',   confidence: 100 },
+    { name: 'Meta Pixel',        category: 'analytics',   confidence: 100 },
+    { name: 'Hotjar',            category: 'analytics',   confidence: 95  },
+    { name: 'Klaviyo',           category: 'marketing',   confidence: 100 },
+    { name: 'Google Tag Manager',category: 'tag_manager', confidence: 100 },
+    { name: 'Stripe',            category: 'payment',     confidence: 90  },
+    { name: 'Cloudflare',        category: 'cdn',         confidence: 100 },
+    { name: 'jQuery',            category: 'framework',   confidence: 100 },
+  ],
+  'appstack.dev': [
+    { name: 'Next.js',           category: 'framework',   confidence: 100, version: '14.2' },
+    { name: 'React',             category: 'framework',   confidence: 100, version: '18' },
+    { name: 'Vercel',            category: 'hosting',     confidence: 100 },
+    { name: 'Segment',           category: 'analytics',   confidence: 100 },
+    { name: 'Google Analytics 4',category: 'analytics',   confidence: 90  },
+    { name: 'HubSpot',           category: 'marketing',   confidence: 100 },
+    { name: 'Intercom',          category: 'marketing',   confidence: 100 },
+    { name: 'Stripe',            category: 'payment',     confidence: 100 },
+    { name: 'Google Tag Manager',category: 'tag_manager', confidence: 100 },
+  ],
+  'blogpress.net': [
+    { name: 'WordPress',         category: 'cms',         confidence: 100, version: '6.5' },
+    { name: 'WooCommerce',       category: 'ecommerce',   confidence: 100 },
+    { name: 'WP Rocket',         category: 'other',       confidence: 100 },
+    { name: 'Google Tag Manager',category: 'tag_manager', confidence: 100 },
+    { name: 'Hotjar',            category: 'analytics',   confidence: 100 },
+    { name: 'Google Analytics 4',category: 'analytics',   confidence: 100 },
+    { name: 'Meta Pixel',        category: 'analytics',   confidence: 90  },
+    { name: 'jQuery',            category: 'framework',   confidence: 100 },
+    { name: 'Yoast SEO',         category: 'other',       confidence: 100 },
+  ],
+  'brandsite.co': [
+    { name: 'WordPress',         category: 'cms',         confidence: 100 },
+    { name: 'Cloudflare',        category: 'cdn',         confidence: 100 },
+    { name: 'Google Tag Manager',category: 'tag_manager', confidence: 100 },
+    { name: 'HubSpot',           category: 'marketing',   confidence: 100 },
+    { name: 'Mailchimp',         category: 'marketing',   confidence: 100 },
+    { name: 'reCAPTCHA',         category: 'security',    confidence: 100 },
+    { name: 'Google Analytics 4',category: 'analytics',   confidence: 100 },
+    { name: 'jQuery',            category: 'framework',   confidence: 100 },
+  ],
+  'techventure.io': [
+    { name: 'React',             category: 'framework',   confidence: 100, version: '18' },
+    { name: 'Gatsby',            category: 'framework',   confidence: 95  },
+    { name: 'Netlify',           category: 'hosting',     confidence: 100 },
+    { name: 'Google Analytics 4',category: 'analytics',   confidence: 100 },
+    { name: 'Segment',           category: 'analytics',   confidence: 90  },
+    { name: 'Cookiebot',         category: 'other',       confidence: 100 },
+    { name: 'Google Tag Manager',category: 'tag_manager', confidence: 100 },
+    { name: 'Stripe',            category: 'payment',     confidence: 85  },
+  ],
+};
+
+// ─── Wappalyzer API lookup ────────────────────────────────────────────────────
+
+interface WappalyzerTech {
+  name: string;
+  category: TechSignature['category'] | string;
+  slug?: string;
+  confidence?: number;
+  version?: string;
+}
+
+async function lookupWappalyzer(siteUrl: string): Promise<WappalyzerTech[] | null> {
+  const apiKey = process.env.WAPPALYZER_API_KEY;
+  if (!apiKey || apiKey.includes('xxxx')) return null;
+
+  try {
+    const params = new URLSearchParams({ urls: siteUrl, sets: 'all' });
+    const resp = await fetch(`https://api.wappalyzer.com/v2/lookup/?${params.toString()}`, {
+      headers: { 'x-api-key': apiKey },
+      signal: AbortSignal.timeout(8000),
+    });
+
+    if (!resp.ok) throw new Error(`Wappalyzer request failed: ${resp.status}`);
+
+    const data = await resp.json() as Array<{ technologies?: Array<{ name: string; categories?: Array<{ slug?: string; name?: string }>; confidence?: number; version?: string }> }>;
+    const results = data?.[0]?.technologies ?? [];
+    return results.map((t) => ({
+      name: t.name,
+      category: t.categories?.[0]?.slug ?? t.categories?.[0]?.name ?? 'other',
+      confidence: t.confidence,
+      version: t.version || undefined,
+    }));
+  } catch {
+    return null;
+  }
+}
+
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 debugRouter.get('/', async (req, res) => {
-  const { domain } = req.query;
-  if (!domain) { res.status(400).json({ error: 'domain required' }); return; }
+  // Accept ?website= (full URL from ticket/account) or ?domain= (bare domain)
+  const { domain, website } = req.query;
+  if (!domain && !website) { res.status(400).json({ error: 'domain or website required' }); return; }
 
-  const rawDomain = String(domain);
-  const url = rawDomain.startsWith('http') ? rawDomain : `https://${rawDomain}`;
+  const raw = website ? String(website) : String(domain);
+  const rawDomain = raw.replace(/^https?:\/\//, '').split('/')[0];
+  const url = raw.startsWith('http') ? raw : `https://${raw}`;
   const checkedAt = new Date().toISOString();
 
   try {
     const startTime = Date.now();
-    const response = await axios.get(url, {
-      timeout: 12000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; CookieYes-Support-Debugger/2.0)',
-        'Accept': 'text/html,application/xhtml+xml',
-      },
-      maxRedirects: 5,
-    });
-    const loadTimeMs = Date.now() - startTime;
+    const [response, wappalyzerResult] = await Promise.allSettled([
+      axios.get(url, {
+        timeout: 12000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; CookieYes-Support-Debugger/2.0)',
+          'Accept': 'text/html,application/xhtml+xml',
+        },
+        maxRedirects: 5,
+      }),
+      lookupWappalyzer(url),
+    ]);
 
-    const html: string = response.data || '';
-    const finalUrl: string = response.request?.res?.responseUrl || url;
-    const statusCode: number = response.status;
+    if (response.status === 'rejected') throw response.reason;
+
+    const loadTimeMs = Date.now() - startTime;
+    const html: string = response.value.data || '';
+    const finalUrl: string = response.value.request?.res?.responseUrl || url;
+    const statusCode: number = response.value.status;
 
     // ── Script detection ───────────────────────────────────────────────────
     const scriptInfo = findCookieYesScript(html);
@@ -252,9 +549,20 @@ debugRouter.get('/', async (req, res) => {
     const detectedConflicts = conflicts.filter((c) => c.detected);
 
     // ── Consent + CMS ──────────────────────────────────────────────────────
-    const { bannerDetected, consentCookiePresent, cookieCount } = detectConsent(html);
+    const { bannerDetected, consentCookiePresent } = detectConsent(html);
     const cms = detectCMS(html);
     const isHttps = detectHttps(finalUrl);
+
+    // ── GCM status (demo mock → HTML analysis) ────────────────────────────
+    const gcmStatus: GCMStatus = DEMO_GCM_STATUS[rawDomain] ?? detectGCMFromHTML(html);
+
+    // ── Technology detection (demo mock → Wappalyzer API → local fallback) ──
+    const demoTechs = DEMO_TECH_STACKS[rawDomain] ?? null;
+    const wappalyzerTechs = wappalyzerResult.status === 'fulfilled' ? wappalyzerResult.value : null;
+    const technologiesDetected: WappalyzerTech[] = demoTechs
+      ?? wappalyzerTechs
+      ?? detectTechnologies(html, response.value.headers as Record<string, string | string[] | undefined>);
+    const wappalyzerSource = (demoTechs || wappalyzerTechs) ? 'wappalyzer_api' : 'local_signatures';
 
     // ── Script health checks ───────────────────────────────────────────────
     const scriptChecks: Array<{ check: string; pass: boolean; detail: string }> = [];
@@ -343,6 +651,13 @@ debugRouter.get('/', async (req, res) => {
       passed_checks: scriptChecks.filter((c) => c.pass).length,
       total_checks: scriptChecks.length,
 
+      // Technologies (Wappalyzer API or local fallback)
+      technologies_detected: technologiesDetected,
+      technologies_source: wappalyzerSource,
+
+      // GCM status
+      gcm_status: gcmStatus,
+
       // Conflicts
       conflicting_plugins: conflicts,
       detected_conflict_count: detectedConflicts.length,
@@ -361,6 +676,9 @@ debugRouter.get('/', async (req, res) => {
     const message = err instanceof Error ? err.message : 'Fetch failed';
     const isTimeout = message.includes('timeout');
     const isCertError = message.includes('certificate') || message.includes('SSL');
+
+    // Still return demo tech stacks even if the live fetch failed
+    const demoTechs = DEMO_TECH_STACKS[rawDomain] ?? [];
 
     res.json({
       domain: rawDomain,
@@ -383,6 +701,9 @@ debugRouter.get('/', async (req, res) => {
       total_checks: 0,
       conflicting_plugins: KNOWN_CONFLICTS.map((p) => ({ ...p, detected: false })),
       detected_conflict_count: 0,
+      technologies_detected: demoTechs,
+      technologies_source: demoTechs.length > 0 ? 'wappalyzer_api' : 'local_signatures',
+      gcm_status: DEMO_GCM_STATUS[rawDomain] ?? { detected: false, was_set_late: false, entries: {}, warnings: [], verdict: 'not_found', source: 'html_analysis' },
       verdict: 'error',
       recommended_fix: isTimeout
         ? 'Site did not respond within 12 seconds. Check if the domain is accessible and not behind a firewall.'

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { CheckCircle, XCircle, SkipForward, Loader, Circle, Bug, Slack } from 'lucide-react';
-import { useWorkflowStore, type SkillStatus } from '@/store/workflowStore';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
+import { useTicketQueueStore as useQueueStoreRaw } from '@/store/ticketQueueStore';
+import type { SkillStatus } from '@/store/workflowStore';
 import { SKILLS } from '@/constants/skills';
 import JiraModal from '@/components/workflow/JiraModal';
 import SlackModal from '@/components/workflow/SlackModal';
@@ -29,14 +31,29 @@ function StatusIcon({ status }: { status: SkillStatus }) {
   return <Circle className="w-3 h-3" />;
 }
 
-export default function SkillsPipeline() {
-  const { skillStatuses, bundle, jira } = useWorkflowStore();
+interface Props {
+  /** Optional: if provided, reads from the ticket queue store for this specific ticket.
+   *  Falls back to the active ticket if omitted. */
+  ticketId?: string;
+}
+
+export default function SkillsPipeline({ ticketId }: Props) {
   const [jiraOpen, setJiraOpen] = useState(false);
   const [slackOpen, setSlackOpen] = useState(false);
 
-  const doneCount  = Object.values(skillStatuses).filter((s) => s === 'done').length;
+  // Resolve which ticket to display
+  const activeTicketId = useTicketQueueStore((s) => s.activeTicketId);
+  const resolvedId = ticketId ?? activeTicketId ?? '';
+  const ticket = useQueueStoreRaw((s) => (resolvedId ? s.tickets[resolvedId] : undefined));
+
+  const skillStatuses = ticket?.skillStatuses ?? {
+    1: 'idle', 2: 'idle', 3: 'idle', 4: 'idle', 5: 'idle', 6: 'idle', 7: 'idle', 8: 'idle',
+  };
+  const jira    = ticket?.jira ?? null;
+  const hasTicket = !!ticket?.bundle;
+
+  const doneCount   = Object.values(skillStatuses).filter((s) => s === 'done').length;
   const totalActive = Object.values(skillStatuses).filter((s) => s !== 'idle' && s !== 'skipped').length;
-  const hasTicket  = !!bundle;
 
   return (
     <>
@@ -49,7 +66,7 @@ export default function SkillsPipeline() {
             )}
           </div>
 
-          {/* ── Action CTAs — right side ──────────────────────────── */}
+          {/* ── Action CTAs ──────────────────────────────────────────── */}
           {hasTicket && (
             <div className="flex items-center gap-2">
               <button
@@ -76,7 +93,7 @@ export default function SkillsPipeline() {
 
         <div className="flex items-center gap-0.5 flex-wrap">
           {SKILLS.map((skill, i) => {
-            const status = skillStatuses[skill.id] ?? 'idle';
+            const status = (skill.id === 6 && jira) ? 'done' : (skillStatuses[skill.id] ?? 'idle');
             return (
               <div key={skill.id} className="flex items-center">
                 <div
@@ -98,7 +115,6 @@ export default function SkillsPipeline() {
         </div>
       </div>
 
-      {/* ── Modals — rendered outside the pipeline card ────────────── */}
       <JiraModal  open={jiraOpen}  onClose={() => setJiraOpen(false)} />
       <SlackModal open={slackOpen} onClose={() => setSlackOpen(false)} />
     </>

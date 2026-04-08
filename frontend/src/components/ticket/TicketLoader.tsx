@@ -1,109 +1,89 @@
 import { useState } from 'react';
-import { Search, Zap } from 'lucide-react';
-import { useWorkflow } from '@/hooks/useWorkflow';
-import { useWorkflowStore } from '@/store/workflowStore';
+import { Search, Zap, Layers } from 'lucide-react';
+import { useTicketQueue } from '@/hooks/useTicketQueue';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
 import Spinner from '@/components/shared/Spinner';
-
-const DEMO_GROUPS = [
-  {
-    label: 'Support Cases',
-    tickets: [
-      { id: '12345', label: 'Banner gone after WP Rocket update',     badge: 'Technical',  color: 'text-amber-600 border-amber-200 bg-amber-50'  },
-      { id: '12346', label: 'Accidental annual upgrade — refund',      badge: 'Billing',    color: 'text-blue-600 border-blue-200 bg-blue-50'    },
-      { id: '12349', label: 'Card declined 3×, account past due',      badge: 'Billing',    color: 'text-blue-600 border-blue-200 bg-blue-50'    },
-      { id: '12347', label: '2FA lost after phone change',             badge: 'Urgent',     color: 'text-red-600 border-red-200 bg-red-50'       },
-      { id: '12350', label: 'GDPR erasure + account deletion',         badge: 'Account',    color: 'text-violet-600 border-violet-200 bg-violet-50' },
-      { id: '12351', label: 'Free plan scanner limit hit',             badge: 'Upgrade',    color: 'text-teal-600 border-teal-200 bg-teal-50'    },
-      { id: '12348', label: 'Banner not showing — no account found',   badge: 'Info Needed',color: 'text-purple-600 border-purple-200 bg-purple-50' },
-    ],
-  },
-  {
-    label: 'Pre-sales',
-    tickets: [
-      { id: '12352', label: 'Evaluating CookieYes — requesting demo', badge: 'Pre-sales',  color: 'text-emerald-600 border-emerald-200 bg-emerald-50' },
-      { id: '12353', label: 'Agency plan for 15 client sites',         badge: 'Pre-sales',  color: 'text-emerald-600 border-emerald-200 bg-emerald-50' },
-      { id: '12354', label: 'LGPD + PDPA compliance question',         badge: 'Pre-sales',  color: 'text-emerald-600 border-emerald-200 bg-emerald-50' },
-      { id: '12355', label: 'Migrating from Cookiebot',                badge: 'Pre-sales',  color: 'text-emerald-600 border-emerald-200 bg-emerald-50' },
-    ],
-  },
-];
 
 export default function TicketLoader() {
   const [input, setInput] = useState('');
-  const [activeGroup, setActiveGroup] = useState<'Support Cases' | 'Pre-sales'>('Support Cases');
-  const { run } = useWorkflow();
-  const { isRunning } = useWorkflowStore();
+  const { runSingle, runBatch } = useTicketQueue();
+  const tickets = useTicketQueueStore((s) => s.tickets);
 
-  const handleLoad = (id: string) => {
-    if (!id.trim() || isRunning) return;
-    run(id.trim());
+  // Any ticket currently processing
+  const isAnyRunning = Object.values(tickets).some((t) => t.status === 'running');
+
+  // Parse input — supports comma-separated or newline-separated IDs
+  const parseIds = (raw: string): string[] =>
+    raw.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+
+  const handleLoad = () => {
+    if (!input.trim() || isAnyRunning) return;
+    const ids = parseIds(input);
+    if (ids.length === 0) return;
+    if (ids.length === 1) {
+      runSingle(ids[0]);
+    } else {
+      runBatch(ids);
+    }
+    setInput('');
   };
 
-  const currentTickets = DEMO_GROUPS.find((g) => g.label === activeGroup)?.tickets ?? [];
+  const ids = parseIds(input);
+  const isBatch = ids.length > 1;
+  const isDisabled = !input.trim() || isAnyRunning;
 
   return (
     <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
-      {/* Search row */}
-      <div className="px-5 pt-4 pb-3 flex gap-3">
+      <div className="px-5 py-4 flex gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleLoad(input)}
-            placeholder="Enter Zendesk ticket ID..."
+            onKeyDown={(e) => e.key === 'Enter' && handleLoad()}
+            placeholder="Ticket ID — or paste multiple IDs comma-separated…"
             className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-colors"
-            disabled={isRunning}
+            disabled={isAnyRunning}
           />
         </div>
+
         <button
-          onClick={() => handleLoad(input)}
-          disabled={isRunning || !input.trim()}
-          className="flex items-center gap-2 px-4 py-2 bg-brand text-white text-sm font-semibold rounded-lg hover:bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+          onClick={handleLoad}
+          disabled={isDisabled}
+          className={`flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm ${
+            isBatch
+              ? 'bg-violet-600 hover:bg-violet-700'
+              : 'bg-brand hover:bg-brand-dark'
+          }`}
         >
-          {isRunning ? <Spinner className="border-white border-t-transparent" /> : <Zap className="w-4 h-4" />}
-          {isRunning ? 'Running…' : 'Run Workflow'}
+          {isAnyRunning ? (
+            <>
+              <Spinner className="border-white border-t-transparent" />
+              Running…
+            </>
+          ) : isBatch ? (
+            <>
+              <Layers className="w-4 h-4" />
+              Run Batch ({ids.length})
+            </>
+          ) : (
+            <>
+              <Zap className="w-4 h-4" />
+              Run Workflow
+            </>
+          )}
         </button>
       </div>
 
-      {/* Demo section */}
-      <div className="border-t border-gray-50 px-5 pb-4">
-        {/* Tab switcher */}
-        <div className="flex items-center gap-1 pt-3 pb-2.5">
-          <span className="text-xs font-medium text-gray-400 uppercase tracking-wide mr-2">Demo:</span>
-          {DEMO_GROUPS.map((g) => (
-            <button
-              key={g.label}
-              onClick={() => setActiveGroup(g.label as typeof activeGroup)}
-              className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
-                activeGroup === g.label
-                  ? 'bg-brand text-white'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              {g.label}
-            </button>
-          ))}
+      {/* Batch hint */}
+      {!isAnyRunning && !input && (
+        <div className="px-5 pb-3 -mt-1">
+          <p className="text-[11px] text-gray-400">
+            Tip: paste multiple ticket IDs separated by commas to process them in parallel
+          </p>
         </div>
-
-        {/* Ticket buttons */}
-        <div className="flex flex-wrap gap-1.5">
-          {currentTickets.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => { setInput(t.id); handleLoad(t.id); }}
-              disabled={isRunning}
-              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 border rounded-full font-medium transition-all disabled:opacity-50 hover:shadow-sm ${t.color}`}
-            >
-              <span className="opacity-50">#{t.id}</span>
-              <span>{t.label}</span>
-              <span className="opacity-40">·</span>
-              <span className="font-semibold">{t.badge}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

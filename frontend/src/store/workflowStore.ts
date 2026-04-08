@@ -5,8 +5,14 @@ import type { StripeCustomer } from '@/types/stripe';
 import type { SiteDebugReport } from '@/types/debug';
 import type { JiraIssue } from '@/types/jira';
 import type { DocArticle } from '@/types/docs';
+import type { CertSearchResult } from '@/types/certification';
 
 export type SkillStatus = 'idle' | 'running' | 'done' | 'skipped' | 'error';
+
+export interface DraftVariant {
+  label: string;
+  draft: string;
+}
 
 export interface WorkflowState {
   ticketId: string;
@@ -17,10 +23,16 @@ export interface WorkflowState {
   jira: JiraIssue | null;
   docResults: DocArticle[];
 
+  // Certification request
+  isCertRequest: boolean;
+  certResult: CertSearchResult | null;
+
   skillStatuses: Record<number, SkillStatus>;
   streamOutput: string;
   draft: string;
+  draftVariants: DraftVariant[];
   category: string;
+  querySummary: string;
 
   isRunning: boolean;
   error: string | null;
@@ -34,11 +46,15 @@ export interface WorkflowState {
   setDebug: (d: SiteDebugReport) => void;
   setJira: (j: JiraIssue) => void;
   setDocResults: (docs: DocArticle[]) => void;
+  setIsCertRequest: (v: boolean) => void;
+  setCertResult: (r: CertSearchResult | null) => void;
   setSkillStatus: (id: number, status: SkillStatus) => void;
   appendStream: (text: string) => void;
   clearStream: () => void;
   setDraft: (d: string) => void;
+  setDraftVariants: (v: DraftVariant[]) => void;
   setCategory: (c: string) => void;
+  setQuerySummary: (s: string) => void;
   setIsRunning: (v: boolean) => void;
   setError: (e: string | null) => void;
   setInfoGatheringMode: (v: boolean) => void;
@@ -47,7 +63,7 @@ export interface WorkflowState {
 }
 
 const initialSkillStatuses: Record<number, SkillStatus> = {
-  1: 'idle', 2: 'idle', 3: 'idle', 4: 'idle', 5: 'idle', 6: 'idle', 7: 'idle',
+  1: 'idle', 2: 'idle', 3: 'idle', 4: 'idle', 5: 'idle', 6: 'idle', 7: 'idle', 8: 'idle',
 };
 
 export const useWorkflowStore = create<WorkflowState>((set) => ({
@@ -58,10 +74,14 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
   debug: null,
   jira: null,
   docResults: [],
+  isCertRequest: false,
+  certResult: null,
   skillStatuses: { ...initialSkillStatuses },
   streamOutput: '',
   draft: '',
+  draftVariants: [],
   category: '',
+  querySummary: '',
   isRunning: false,
   error: null,
   infoGatheringMode: false,
@@ -74,12 +94,16 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
   setDebug: (d) => set({ debug: d }),
   setJira: (j) => set({ jira: j }),
   setDocResults: (docs) => set({ docResults: docs }),
+  setIsCertRequest: (v) => set({ isCertRequest: v }),
+  setCertResult: (r) => set({ certResult: r }),
   setSkillStatus: (id, status) =>
     set((s) => ({ skillStatuses: { ...s.skillStatuses, [id]: status } })),
   appendStream: (text) => set((s) => ({ streamOutput: s.streamOutput + text })),
-  clearStream: () => set({ streamOutput: '', draft: '' }),
+  clearStream: () => set({ streamOutput: '', draft: '', draftVariants: [], querySummary: '' }),
   setDraft: (d) => set({ draft: d }),
+  setDraftVariants: (v) => set({ draftVariants: v }),
   setCategory: (c) => set({ category: c }),
+  setQuerySummary: (s) => set({ querySummary: s }),
   setIsRunning: (v) => set({ isRunning: v }),
   setError: (e) => set({ error: e }),
   setInfoGatheringMode: (v) => set({ infoGatheringMode: v }),
@@ -92,10 +116,14 @@ export const useWorkflowStore = create<WorkflowState>((set) => ({
       debug: null,
       jira: null,
       docResults: [],
+      isCertRequest: false,
+      certResult: null,
       skillStatuses: { ...initialSkillStatuses },
       streamOutput: '',
       draft: '',
+      draftVariants: [],
       category: '',
+      querySummary: '',
       isRunning: false,
       error: null,
       infoGatheringMode: false,

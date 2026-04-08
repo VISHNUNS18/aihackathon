@@ -1,8 +1,15 @@
-import { useWorkflowStore } from '@/store/workflowStore';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
 import { formatDate } from '@/lib/utils';
 
-export default function ConversationThread() {
-  const bundle = useWorkflowStore((s) => s.bundle);
+interface Props {
+  ticketId?: string;
+}
+
+export default function ConversationThread({ ticketId }: Props) {
+  const activeTicketId = useTicketQueueStore((s) => s.activeTicketId);
+  const resolvedId = ticketId ?? activeTicketId ?? '';
+  const bundle = useTicketQueueStore((s) => (resolvedId ? s.tickets[resolvedId]?.bundle : undefined));
+
   if (!bundle) return null;
 
   return (

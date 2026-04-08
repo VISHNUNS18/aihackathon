@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CookieYes AI Support Assistant — Video Walkthrough</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand: #4f46e5;
+    --brand-light: #eef2ff;
+    --brand-dark: #3730a3;
+    --green: #16a34a;
+    --green-light: #dcfce7;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --amber: #d97706;
+    --amber-light: #fef3c7;
+    --blue: #2563eb;
+    --blue-light: #dbeafe;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-900: #111827;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    font-family: 'Inter', sans-serif;
+    background: #0f0f1a;
+    overflow: hidden;
+  }
+
+  /* ── Slide container ── */
+  .deck {
+    width: 100vw; height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s cubic-bezier(.4,0,.2,1), transform 0.45s cubic-bezier(.4,0,.2,1);
+    transform: translateX(60px);
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(0);
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ── Nav ── */
+  .nav {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,.08);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 999px;
+    padding: 10px 20px;
+    z-index: 100;
+  }
+  .nav button {
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.18);
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .nav button:hover { background: rgba(255,255,255,.22); }
+  .nav button:disabled { opacity: .3; cursor: default; }
+  .nav .counter { color: rgba(255,255,255,.6); font-size: 13px; font-weight: 500; min-width: 56px; text-align: center; }
+  .progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #818cf8, #a78bfa);
+    transition: width .4s ease;
+    z-index: 200;
+  }
+
+  /* ── Shared layout helpers ── */
+  .slide-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 52px 64px 90px;
+    overflow: hidden;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1.5px solid;
+    width: fit-content;
+    margin-bottom: 18px;
+  }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+  h1.hero { font-size: 62px; font-weight: 900; line-height: 1.08; letter-spacing: -.03em; }
+  h2.title { font-size: 38px; font-weight: 800; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 10px; }
+  .subtitle { font-size: 18px; font-weight: 400; line-height: 1.6; }
+  .label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+
+  /* ── Card ── */
+  .card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px;
+    padding: 20px 24px;
+  }
+  .card-white {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px 24px;
+    color: var(--gray-900);
+  }
+
+  /* ── Grid helpers ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* ─────────────────────────────────────────
+     SLIDE 1 — TITLE
+  ───────────────────────────────────────── */
+  .s1 { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 50%, #0f0f1a 100%); }
+  .s1 .slide-inner {
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0 80px;
+  }
+  .s1 .glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(79,70,229,.35) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    pointer-events: none;
+  }
+  .s1 .glow2 {
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(167,139,250,.2) 0%, transparent 70%);
+    bottom: 0; left: 100px;
+    pointer-events: none;
+  }
+  .s1 .eyebrow {
+    font-size: 13px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #818cf8;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .s1 .eyebrow::before {
+    content: '';
+    display: block;
+    width: 32px; height: 2px;
+    background: #818cf8;
+    border-radius: 2px;
+  }
+  .s1 h1 {
+    font-size: 72px; font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -.04em;
+    color: #fff;
+    max-width: 780px;
+    margin-bottom: 24px;
+  }
+  .s1 h1 span { color: #a78bfa; }
+  .s1 .desc {
+    font-size: 20px; color: rgba(255,255,255,.55);
+    max-width: 560px; line-height: 1.65;
+    margin-bottom: 40px;
+  }
+  .s1 .pills { display: flex; gap: 10px; flex-wrap: wrap; }
+  .s1 .pill {
+    font-size: 12px; font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.15);
+    color: rgba(255,255,255,.7);
+    background: rgba(255,255,255,.06);
+  }
+  .s1 .scene-counter {
+    position: absolute;
+    bottom: 90px; right: 80px;
+    font-size: 13px; color: rgba(255,255,255,.3);
+    font-weight: 500;
+  }
+
+  /* ─────────────────────────────────────────
+     SCENE SLIDES — shared header
+  ───────────────────────────────────────── */
+  .scene-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .scene-number {
+    font-size: 11px; font-weight: 800;
+    letter-spacing: .12em; text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: .6;
+  }
+
+  /* ─────────────────────────────────────────
+     SLIDE 2 — DASHBOARD
+  ───────────────────────────────────────── */
+  .s2 { background: #f8fafc; }
+  .s2 .slide-inner { padding: 40px 56px 90px; }
+  .s2 .scene-number { color: var(--brand); }
+  .s2 h2 { color: var(--gray-900); font-size: 34px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 6px; }
+  .s2 .sub { color: var(--gray-600); font-size: 15px; margin-bottom: 28px; }
+
+  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex: 1; }
+  .kanban-col {
+    background: #f1f5f9;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .kanban-col-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .kanban-col-title { font-size: 12px; font-weight: 700; color: var(--gray-700); }
+  .kanban-count {
+    font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 999px;
+  }
+  .col-new .kanban-count { background: #dcfce7; color: #16a34a; }
+  .col-inprogress .kanban-count { background: #dbeafe; color: #2563eb; }
+  .col-completed .kanban-count { background: #f3f4f6; color: #6b7280; }
+  .col-forwarded .kanban-count { background: #fef3c7; color: #d97706; }
+
+  .kanban-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: box-shadow .15s, transform .15s;
+  }
+  .kanban-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); transform: translateY(-1px); }
+  .kanban-card-id { font-size: 10px; font-weight: 600; color: var(--gray-400); margin-bottom: 4px; }
+  .kanban-card-subject { font-size: 11.5px; font-weight: 600; color: var(--gray-700); line-height: 1.4; margin-bottom: 6px; }
+  .kanban-card-tags { display: flex; gap: 4px; }
+  .t-technical { background: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
+  .t-billing    { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+  .t-presales   { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+  .t-cert       { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+
+  .metrics-row { display: flex; gap: 12px; margin-bottom: 20px; }
+  .metric {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .metric-val { font-size: 28px; font-weight: 800; color: var(--gray-900); }
+  .metric-label { font-size: 11px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
+
+  /* ─────────────────────────────────────────
+     SLIDE 3 — TICKET #12345
+  ───────────────────────────────────────── */
+  .s3 { background: #fff; }
+  .s3 .slide-inner { padding: 40px 56px 90px; }
+  .s3 h2 { font-size: 30px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+  .s3 .sub { font-size: 14px; color: var(--gray-600); margin-bottom: 22px; }
+
+  .ticket-layout { display: grid; grid-template-columns: 1fr 1.4fr; gap: 20px; flex: 1; }
+  .ticket-conv {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 16px;
+    overflow: hidden;
+  }
+  .conv-msg {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .conv-author { font-size: 11px; font-weight: 700; color: var(--gray-600); margin-bottom: 4px; }
+  .conv-text { font-size: 12px; color: var(--gray-700); line-height: 1.55; }
+  .agent-msg { background: var(--brand-light); border-color: #c7d2fe; }
+  .agent-msg .conv-author { color: var(--brand); }
+
+  .analysis-box {
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .skill-row {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; font-weight: 600; color: var(--gray-700);
+  }
+  .skill-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-done { background: #16a34a; }
+  .dot-active {
+    background: var(--brand);
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+
+  .debug-result {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .debug-result .label { color: #92400e; font-size: 10px; }
+  .debug-result p { font-size: 12px; color: #7c2d12; margin-top: 4px; line-height: 1.5; font-weight: 500; }
+
+  .draft-box {
+    background: var(--brand-light);
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--brand-dark);
+    line-height: 1.6;
+  }
+  .draft-box .draft-label { font-size: 10px; font-weight: 700; color: var(--brand); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+
+  /* ─────────────────────────────────────────
+     SLIDE 4 — BILLING #12346
+  ───────────────────────────────────────── */
+  .s4 { background: #fff; }
+  .s4 .slide-inner { padding: 40px 56px 90px; }
+  .s4 h2 { font-size: 30px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+  .s4 .sub { font-size: 14px; color: var(--gray-600); margin-bottom: 22px; }
+
+  .billing-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .stripe-card {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .stripe-row {
+    display: flex; justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 12.5px;
+  }
+  .stripe-row:last-child { border-bottom: none; }
+  .stripe-key { color: var(--gray-600); font-weight: 500; }
+  .stripe-val { font-weight: 700; color: var(--gray-900); }
+  .verdict-green {
+    background: var(--green-light);
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: var(--green);
+    font-weight: 600;
+    margin-top: 14px;
+  }
+  .verdict-green::before { content: '✓ '; font-weight: 800; }
+
+  /* ─────────────────────────────────────────
+     SLIDE 5 — INFO GATHERING #12348
+  ───────────────────────────────────────── */
+  .s5 { background: #fff; }
+  .s5 .slide-inner { padding: 40px 56px 90px; }
+  .s5 h2 { font-size: 30px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+  .s5 .sub { font-size: 14px; color: var(--gray-600); margin-bottom: 22px; }
+
+  .warn-banner {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex; align-items: flex-start; gap: 12px;
+    margin-bottom: 20px;
+  }
+  .warn-icon { font-size: 20px; flex-shrink: 0; }
+  .warn-title { font-size: 13px; font-weight: 700; color: #92400e; }
+  .warn-desc { font-size: 12px; color: #7c2d12; margin-top: 2px; line-height: 1.5; }
+
+  .info-draft {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--gray-700);
+    max-width: 560px;
+  }
+  .word-count {
+    font-size: 11px; color: var(--gray-400); font-weight: 600;
+    margin-top: 12px; text-align: right;
+  }
+  .mode-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  .mode-box { border-radius: 10px; padding: 16px 18px; }
+  .mode-bad { background: #fee2e2; border: 1px solid #fecaca; }
+  .mode-good { background: #dcfce7; border: 1px solid #86efac; }
+  .mode-label { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+  .mode-bad .mode-label { color: #b91c1c; }
+  .mode-good .mode-label { color: #15803d; }
+  .mode-text { font-size: 12px; line-height: 1.6; }
+  .mode-bad .mode-text { color: #7f1d1d; }
+  .mode-good .mode-text { color: #14532d; }
+
+  /* ─────────────────────────────────────────
+     SLIDE 6 — PRESALES #12352
+  ───────────────────────────────────────── */
+  .s6 { background: #f0fdf4; }
+  .s6 .slide-inner { padding: 40px 56px 90px; }
+  .s6 h2 { font-size: 30px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+  .s6 .sub { font-size: 14px; color: #166534; margin-bottom: 22px; }
+
+  .presales-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; }
+  .prospect-questions {
+    background: #fff;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .q-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 12.5px; color: var(--gray-700);
+  }
+  .q-item:last-child { border-bottom: none; }
+  .q-num { width: 20px; height: 20px; border-radius: 50%; background: var(--brand); color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .plan-reco {
+    background: #fff;
+    border: 2px solid #86efac;
+    border-radius: 12px;
+    padding: 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .plan-name { font-size: 22px; font-weight: 800; color: var(--gray-900); }
+  .plan-price { font-size: 32px; font-weight: 900; color: var(--green); }
+  .plan-price span { font-size: 14px; font-weight: 500; color: var(--gray-400); }
+  .plan-feature {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--gray-700);
+  }
+  .plan-feature::before { content: '✓'; color: var(--green); font-weight: 800; flex-shrink: 0; }
+  .trial-banner {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* ─────────────────────────────────────────
+     SLIDE 7 — TECH STACK #12360
+  ───────────────────────────────────────── */
+  .s7 { background: #fff; }
+  .s7 .slide-inner { padding: 40px 56px 90px; }
+  .s7 h2 { font-size: 30px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+  .s7 .sub { font-size: 14px; color: var(--gray-600); margin-bottom: 22px; }
+
+  .tech-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; flex: 1; }
+  .tech-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .tech-chip {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tech-chip-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .tech-chip-name { font-size: 12px; font-weight: 700; color: var(--gray-900); }
+  .tech-chip-cat { font-size: 10px; color: var(--gray-400); font-weight: 500; }
+  .conflict-flag {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #7f1d1d;
+    font-weight: 500;
+    line-height: 1.5;
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .analysis-stream {
+    background: var(--gray-900);
+    border-radius: 12px;
+    padding: 18px;
+    font-family: 'Menlo', 'Monaco', monospace;
+    font-size: 11.5px;
+    color: #a5f3fc;
+    line-height: 1.7;
+    overflow: hidden;
+    flex: 1;
+  }
+  .stream-green { color: #86efac; }
+  .stream-yellow { color: #fde68a; }
+  .stream-white { color: #f1f5f9; }
+  .stream-dim { color: #64748b; }
+
+  /* ─────────────────────────────────────────
+     SLIDE 8 — AUTO BUG FIX
+  ───────────────────────────────────────── */
+  .s8 { background: #0f172a; }
+  .s8 .slide-inner { padding: 40px 56px 90px; }
+  .s8 h2 { font-size: 30px; font-weight: 800; color: #f1f5f9; margin-bottom: 4px; }
+  .s8 .sub { font-size: 14px; color: #64748b; margin-bottom: 22px; }
+
+  .bug-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; flex: 1; }
+  .code-block {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 18px;
+    font-family: 'Menlo', 'Monaco', monospace;
+    font-size: 11.5px;
+    overflow: hidden;
+  }
+  .code-block-header {
+    font-size: 10px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .buggy-header { color: #f87171; }
+  .fixed-header { color: #4ade80; }
+  .code-line { line-height: 1.8; }
+  .bug-line { color: #f87171; background: rgba(248,113,113,.08); padding: 0 4px; border-radius: 3px; display: block; }
+  .fix-line { color: #4ade80; background: rgba(74,222,128,.08); padding: 0 4px; border-radius: 3px; display: block; }
+  .normal-line { color: #94a3b8; }
+  .comment-line { color: #475569; }
+
+  .jira-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .jira-key {
+    font-size: 22px; font-weight: 800;
+    color: #818cf8;
+    margin-bottom: 8px;
+  }
+  .jira-summary { font-size: 13px; color: #cbd5e1; line-height: 1.5; margin-bottom: 14px; }
+  .jira-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+  .jira-tag {
+    font-size: 10px; font-weight: 700;
+    padding: 3px 10px; border-radius: 999px;
+    border: 1px solid;
+  }
+  .j-auto { background: rgba(99,102,241,.2); color: #a5b4fc; border-color: rgba(99,102,241,.4); }
+  .j-bug  { background: rgba(248,113,113,.15); color: #fca5a5; border-color: rgba(248,113,113,.3); }
+  .j-ai   { background: rgba(74,222,128,.12); color: #86efac; border-color: rgba(74,222,128,.3); }
+
+  .claude-badge {
+    background: linear-gradient(135deg, rgba(79,70,229,.3), rgba(124,58,237,.3));
+    border: 1px solid rgba(167,139,250,.4);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #c4b5fd;
+    font-weight: 600;
+    margin-top: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ─────────────────────────────────────────
+     SLIDE 9 — TONE CONTROL
+  ───────────────────────────────────────── */
+  .s9 { background: #fff; }
+  .s9 .slide-inner { padding: 40px 56px 90px; }
+  .s9 h2 { font-size: 30px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+  .s9 .sub { font-size: 14px; color: var(--gray-600); margin-bottom: 28px; }
+
+  .tone-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .tone-card {
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 18px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .tone-card.selected { border-color: var(--brand); background: var(--brand-light); }
+  .tone-emoji { font-size: 28px; margin-bottom: 8px; }
+  .tone-name { font-size: 13px; font-weight: 700; color: var(--gray-900); }
+  .tone-desc { font-size: 11px; color: var(--gray-400); margin-top: 3px; }
+
+  .draft-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .draft-version {
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--gray-700);
+  }
+  .draft-version .dv-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px; }
+  .dv-friendly .dv-label { color: #0284c7; }
+  .dv-concise .dv-label { color: #7c3aed; }
+
+  /* ─────────────────────────────────────────
+     SLIDE 10 — CAPABILITIES SUMMARY
+  ───────────────────────────────────────── */
+  .s10 { background: linear-gradient(135deg, #0f0f1a 0%, #1a1040 60%, #0f0f1a 100%); }
+  .s10 .slide-inner { padding: 40px 64px 90px; }
+  .s10 h2 { font-size: 38px; font-weight: 900; color: #fff; letter-spacing: -.02em; margin-bottom: 6px; }
+  .s10 .sub { font-size: 16px; color: rgba(255,255,255,.45); margin-bottom: 32px; }
+
+  .caps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .cap-card {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 14px;
+    padding: 18px 20px;
+    transition: background .2s;
+  }
+  .cap-card:hover { background: rgba(255,255,255,.08); }
+  .cap-icon { font-size: 24px; margin-bottom: 10px; }
+  .cap-title { font-size: 13px; font-weight: 700; color: #f1f5f9; margin-bottom: 6px; }
+  .cap-desc { font-size: 11.5px; color: rgba(255,255,255,.45); line-height: 1.55; }
+
+  .stack-row {
+    display: flex; gap: 8px; margin-top: 28px; flex-wrap: wrap;
+  }
+  .stack-chip {
+    font-size: 11px; font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.12);
+    color: rgba(255,255,255,.65);
+  }
+
+  /* ─────────────────────────────────────────
+     SLIDE 11 — THANK YOU
+  ───────────────────────────────────────── */
+  .s11 { background: linear-gradient(135deg, #1a0533 0%, #0f172a 50%, #0a1628 100%); }
+  .s11 .slide-inner {
+    justify-content: center; align-items: center;
+    text-align: center;
+    padding: 0 80px 90px;
+  }
+  .s11 .glow3 {
+    position: absolute;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,.3) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .s11 h1 { font-size: 64px; font-weight: 900; color: #fff; letter-spacing: -.04em; margin-bottom: 20px; }
+  .s11 h1 span { color: #a78bfa; }
+  .s11 .tagline { font-size: 20px; color: rgba(255,255,255,.45); max-width: 500px; line-height: 1.6; margin-bottom: 40px; }
+  .s11 .built-with {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: rgba(255,255,255,.35); font-weight: 500;
+  }
+  .s11 .built-with strong { color: rgba(255,255,255,.7); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 1 — TITLE
+  ══════════════════════════════════════════ -->
+  <div class="slide s1 active" data-index="0">
+    <div class="glow"></div>
+    <div class="glow2"></div>
+    <div class="slide-inner">
+      <div class="eyebrow">AI Hackathon 2026</div>
+      <h1>CookieYes <span>AI Support</span> Assistant</h1>
+      <p class="desc">An 8-skill AI agent that loads tickets, checks accounts, debugs sites, and drafts perfect customer replies — all in under 10 seconds.</p>
+      <div class="pills">
+        <span class="pill">Claude Opus 4.5</span>
+        <span class="pill">Zendesk</span>
+        <span class="pill">Stripe</span>
+        <span class="pill">Jira</span>
+        <span class="pill">Wappalyzer</span>
+        <span class="pill">Auto Bug Fix</span>
+      </div>
+    </div>
+    <div class="scene-counter">8 scenes · ~6 min</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 2 — DASHBOARD
+  ══════════════════════════════════════════ -->
+  <div class="slide s2" data-index="1">
+    <div class="slide-inner">
+      <div class="scene-header">
+        <div>
+          <div class="scene-number label">Scene 1</div>
+          <h2 class="title" style="color:#111827">Dashboard — Ticket Pipeline</h2>
+          <p class="sub">The support team's live view of all incoming tickets, organised by pipeline stage.</p>
+        </div>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric"><div class="metric-val">17</div><div class="metric-label">Total Tickets</div></div>
+        <div class="metric"><div class="metric-val" style="color:#16a34a">6</div><div class="metric-label">New</div></div>
+        <div class="metric"><div class="metric-val" style="color:#2563eb">5</div><div class="metric-label">In Progress</div></div>
+        <div class="metric"><div class="metric-val" style="color:#7c3aed">4</div><div class="metric-label">Completed</div></div>
+        <div class="metric"><div class="metric-val" style="color:#d97706">2</div><div class="metric-label">Forwarded</div></div>
+      </div>
+
+      <div class="kanban">
+        <div class="kanban-col col-new">
+          <div class="kanban-col-header"><span class="kanban-col-title">New</span><span class="kanban-count">6</span></div>
+          <div class="kanban-card"><div class="kanban-card-id">#12345</div><div class="kanban-card-subject">Banner disappeared after WP Rocket update</div><div class="kanban-card-tags"><span class="tag t-technical">Technical</span></div></div>
+          <div class="kanban-card"><div class="kanban-card-id">#12363</div><div class="kanban-card-subject">Banner loads 3–4s late — Cloudflare Rocket Loader</div><div class="kanban-card-tags"><span class="tag t-technical">Technical</span></div></div>
+          <div class="kanban-card"><div class="kanban-card-id">#12373</div><div class="kanban-card-subject">Price quote — 4 domains, Ultimate annual</div><div class="kanban-card-tags"><span class="tag t-presales">Pre-sales</span></div></div>
+          <div class="kanban-card"><div class="kanban-card-id">#12370</div><div class="kanban-card-subject">Tax Residency Certificate (Poland) needed</div><div class="kanban-card-tags"><span class="tag t-cert">Cert</span></div></div>
+        </div>
+        <div class="kanban-col col-inprogress">
+          <div class="kanban-col-header"><span class="kanban-col-title">In Progress</span><span class="kanban-count">5</span></div>
+          <div class="kanban-card"><div class="kanban-card-id">#12361</div><div class="kanban-card-subject">GCM v2 + Segment + HubSpot on Next.js</div><div class="kanban-card-tags"><span class="tag t-technical">Technical</span></div></div>
+          <div class="kanban-card"><div class="kanban-card-id">#12364</div><div class="kanban-card-subject">Two consent banners — Cookiebot conflict</div><div class="kanban-card-tags"><span class="tag t-technical">Technical</span></div></div>
+          <div class="kanban-card"><div class="kanban-card-id">#12352</div><div class="kanban-card-subject">Evaluating CookieYes — need a demo</div><div class="kanban-card-tags"><span class="tag t-presales">Pre-sales</span></div></div>
+        </div>
+        <div class="kanban-col col-completed">
+          <div class="kanban-col-header"><span class="kanban-col-title">Completed</span><span class="kanban-count">4</span></div>
+          <div class="kanban-card"><div class="kanban-card-id">#12360</div><div class="kanban-card-subject">Analytics trackers firing before consent — Shopify</div><div class="kanban-card-tags"><span class="tag t-technical">Technical</span></div></div>
+          <div class="kanban-card"><div class="kanban-card-id">#12368</div><div class="kanban-card-subject">Refund request — charged twice this month</div><div class="kanban-card-tags"><span class="tag t-billing">Billing</span></div></div>
+        </div>
+        <div class="kanban-col col-forwarded">
+          <div class="kanban-col-header"><span class="kanban-col-title">Forwarded</span><span class="kanban-count">2</span></div>
+          <div class="kanban-card"><div class="kanban-card-id">#12362</div><div class="kanban-card-subject">Banner slow on WP + WooCommerce + Cloudflare</div><div class="kanban-card-tags"><span class="tag t-technical">Technical</span></div></div>
+          <div class="kanban-card"><div class="kanban-card-id">#12355</div><div class="kanban-card-subject">Switching from Cookiebot — migration questions</div><div class="kanban-card-tags"><span class="tag t-presales">Pre-sales</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 3 — TECHNICAL TICKET #12345
+  ══════════════════════════════════════════ -->
+  <div class="slide s3" data-index="2">
+    <div class="slide-inner">
+      <div class="scene-header">
+        <div>
+          <div class="scene-number label" style="color:#2563eb">Scene 2 — Ticket #12345</div>
+          <h2 class="title" style="color:#111827">Technical: WP Rocket Breaking Banner</h2>
+          <p class="sub">Sarah Mitchell · designstudio.co · Pro Plan · Opened 2 days ago</p>
+        </div>
+        <span class="tag t-technical" style="font-size:12px;padding:5px 14px">High Priority</span>
+      </div>
+
+      <div class="ticket-layout">
+        <div class="ticket-conv">
+          <div class="label" style="color:#6b7280;margin-bottom:10px">Conversation Thread</div>
+          <div class="conv-msg">
+            <div class="conv-author">Sarah Mitchell · 2 days ago</div>
+            <div class="conv-text">Our cookie consent banner has completely disappeared since we updated WP Rocket last week. We've tried clearing cache multiple times but the banner still doesn't appear.</div>
+          </div>
+          <div class="conv-msg agent-msg">
+            <div class="conv-author">Support Agent · 1 day ago</div>
+            <div class="conv-text">Hi Sarah — I can see your account and I'm looking into this now. Could you confirm whether you're using the WP Rocket minification or defer JS settings?</div>
+          </div>
+          <div class="conv-msg">
+            <div class="conv-author">Sarah Mitchell · Today</div>
+            <div class="conv-text">Yes, we have both <strong>JS minification</strong> and <strong>"Delay JS execution"</strong> turned on in WP Rocket. Could that be the issue?</div>
+          </div>
+        </div>
+
+        <div class="analysis-box">
+          <div class="label" style="color:#6b7280">8-Skill Pipeline</div>
+          <div class="skill-row"><span class="skill-dot dot-done"></span>Ticket loaded — #12345, 3 messages, High priority</div>
+          <div class="skill-row"><span class="skill-dot dot-done"></span>Account found — Pro Plan, banner active, 1 year customer</div>
+          <div class="skill-row"><span class="skill-dot dot-done"></span>Stripe — $250/yr, next billing in 48 days, no issues</div>
+          <div class="skill-row"><span class="skill-dot dot-done"></span>Site Debug — conflict detected</div>
+          <div class="skill-row"><span class="skill-dot dot-done"></span>Docs — WP Rocket exclusion guide matched</div>
+          <div class="skill-row"><span class="skill-dot dot-done"></span>Analysis complete</div>
+
+          <div class="debug-result">
+            <div class="label">Site Debugger — Plugin Conflict</div>
+            <p>WP Rocket "Delay JS execution" is deferring the CookieYes script. Exclude <code>cookieyes</code> from WP Rocket's JS delay list to restore the banner.</p>
+          </div>
+
+          <div class="draft-box">
+            <div class="draft-label">Auto-Drafted Reply</div>
+            Hi Sarah,<br><br>
+            Thank you for the details — this is a known conflict with WP Rocket's "Delay JS execution" feature. When this setting is active, it can defer the CookieYes script, preventing the banner from loading.<br><br>
+            To fix this, add <strong>cookieyes</strong> to the excluded scripts list in WP Rocket. Full steps here: <u>WP Rocket + CookieYes setup guide</u>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 4 — BILLING #12346
+  ══════════════════════════════════════════ -->
+  <div class="slide s4" data-index="3">
+    <div class="slide-inner">
+      <div class="scene-header">
+        <div>
+          <div class="scene-number label" style="color:#dc2626">Scene 3 — Ticket #12346</div>
+          <h2 class="title" style="color:#111827">Billing: Accidental Annual Upgrade</h2>
+          <p class="sub">James Chen · TechCorp Solutions · Charged $799 — wants to switch back to monthly</p>
+        </div>
+        <span class="tag t-billing" style="font-size:12px;padding:5px 14px">Billing / Refund</span>
+      </div>
+
+      <div class="billing-layout">
+        <div class="stripe-card">
+          <div class="label" style="color:#6b7280;margin-bottom:12px">Stripe Billing Data</div>
+          <div class="stripe-row"><span class="stripe-key">Current Plan</span><span class="stripe-val">Pro Annual</span></div>
+          <div class="stripe-row"><span class="stripe-key">Charged</span><span class="stripe-val">$799.00</span></div>
+          <div class="stripe-row"><span class="stripe-key">Charge Date</span><span class="stripe-val">Yesterday</span></div>
+          <div class="stripe-row"><span class="stripe-key">Status</span><span class="stripe-val" style="color:#16a34a">Active</span></div>
+          <div class="stripe-row"><span class="stripe-key">Previous Plan</span><span class="stripe-val">Pro Monthly ($99/mo)</span></div>
+          <div class="stripe-row"><span class="stripe-key">Days Since Charge</span><span class="stripe-val">1 day</span></div>
+          <div class="verdict-green">Refund eligible — charged within 14-day refund window</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="draft-box" style="background:#fff7ed;border-color:#fed7aa;color:#7c2d12">
+            <div class="draft-label" style="color:#92400e">Auto-Drafted Reply</div>
+            Hi James,<br><br>
+            I've reviewed your account and can see the annual charge of $799 from yesterday. As this is within our 14-day refund window, I can process a refund and move you back to the Pro Monthly plan.<br><br>
+            I'll action this now — please allow 5-10 business days for the refund to appear. Your account will continue on Pro Monthly at $99/month from your next billing date.
+          </div>
+          <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:14px 18px">
+            <div class="label" style="color:#15803d;margin-bottom:8px">What the agent did</div>
+            <div style="font-size:12px;color:#166534;line-height:1.7">
+              ✓ Checked Stripe — confirmed charge date and amount<br>
+              ✓ Applied refund eligibility rules automatically<br>
+              ✓ Drafted reply with correct amount and timeline<br>
+              ✓ No invented data — all from real Stripe records
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 5 — INFO GATHERING #12348
+  ══════════════════════════════════════════ -->
+  <div class="slide s5" data-index="4">
+    <div class="slide-inner">
+      <div class="scene-header">
+        <div>
+          <div class="scene-number label" style="color:#d97706">Scene 4 — Ticket #12348</div>
+          <h2 class="title" style="color:#111827">Info-Gathering Mode — Account Not Found</h2>
+          <p class="sub">Priya Nair · priya@newventure.xyz — no CookieYes account linked to this email</p>
+        </div>
+      </div>
+
+      <div class="warn-banner">
+        <div class="warn-icon">⚠️</div>
+        <div>
+          <div class="warn-title">ACCOUNT NOT LINKED</div>
+          <div class="warn-desc">No CookieYes account found for <strong>priya@newventure.xyz</strong>. Skill 2 switched to Info-Gathering Mode automatically.</div>
+        </div>
+      </div>
+
+      <div class="mode-compare">
+        <div class="mode-box mode-bad">
+          <div class="mode-label">Without AI — Agent writes this</div>
+          <div class="mode-text">Hi, I tried to look you up in our internal system but I couldn't find your account. Our admin panel lookup failed. Can you please check if you signed up with a different email? I also need to check our Zendesk integration. Please provide your account ID from the dashboard.</div>
+        </div>
+        <div class="mode-box mode-good">
+          <div class="mode-label">AI Info-Gathering Draft</div>
+          <div class="mode-text">Hi Priya,<br><br>Thanks for reaching out! To look into this for you, could you share the email address you used to register your CookieYes account and the domain where you installed the script?<br><br>Best regards,<br>CookieYes Support Team</div>
+        </div>
+      </div>
+
+      <div class="word-count" style="margin-top:16px">AI draft: 47 words · No jargon · No internal system references · Warm tone</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 6 — PRESALES #12352
+  ══════════════════════════════════════════ -->
+  <div class="slide s6" data-index="5">
+    <div class="slide-inner">
+      <div class="scene-header">
+        <div>
+          <div class="scene-number label" style="color:#15803d">Scene 5 — Ticket #12352</div>
+          <h2 class="title" style="color:#111827">Pre-sales Mode — Prospect Evaluation</h2>
+          <p class="sub">James Thornton · ModernBrand · Shopify store · ~80k monthly visitors · Comparing vs Cookiebot + OneTrust</p>
+        </div>
+        <span class="tag t-presales" style="font-size:12px;padding:5px 14px">Pre-sales Mode</span>
+      </div>
+
+      <div class="presales-layout">
+        <div class="prospect-questions">
+          <div class="label" style="color:#6b7280;margin-bottom:12px">Prospect's 4 Questions</div>
+          <div class="q-item"><span class="q-num">1</span>Can we get a live demo or speak with someone?</div>
+          <div class="q-item"><span class="q-num">2</span>Does CookieYes support Google Consent Mode v2 for GA4 and Google Ads?</div>
+          <div class="q-item"><span class="q-num">3</span>How does your pricing compare to Cookiebot?</div>
+          <div class="q-item"><span class="q-num">4</span>Is there a trial we can test before paying? We need GDPR compliance this month.</div>
+          <div style="margin-top:14px;padding:10px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:12px;color:#7c2d12">
+            <strong>Note:</strong> No account lookup attempted — AI detected <code>presales</code>, <code>evaluation</code>, <code>trial</code> tags and switched mode automatically.
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="plan-reco">
+            <div class="label" style="color:#15803d">AI Recommended Plan</div>
+            <div class="plan-name">Pro Plan</div>
+            <div class="plan-price">$25<span>/month</span></div>
+            <div class="plan-feature">300,000 pageviews/mo — covers 80k visitors</div>
+            <div class="plan-feature">Google Consent Mode v2 — built in</div>
+            <div class="plan-feature">Geo-targeting for GDPR</div>
+            <div class="plan-feature">Shopify integration — one-click install</div>
+          </div>
+          <div class="trial-banner">
+            14-day free trial — no credit card required<br>
+            <span style="font-size:11px;opacity:.7;font-weight:400">AI mentions this automatically for all presales tickets</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 7 — TECH STACK #12360
+  ══════════════════════════════════════════ -->
+  <div class="slide s7" data-index="6">
+    <div class="slide-inner">
+      <div class="scene-header">
+        <div>
+          <div class="scene-number label" style="color:#2563eb">Scene 6 — Ticket #12360</div>
+          <h2 class="title" style="color:#111827">Tech Stack Detection — Shopify Consent Issue</h2>
+          <p class="sub">Analytics trackers firing before consent — Wappalyzer detects the full stack automatically</p>
+        </div>
+      </div>
+
+      <div class="tech-layout">
+        <div>
+          <div class="label" style="color:#6b7280;margin-bottom:12px">Detected Tech Stack</div>
+          <div class="tech-grid">
+            <div class="tech-chip">
+              <div class="tech-chip-icon" style="background:#dcfce7">🛍️</div>
+              <div><div class="tech-chip-name">Shopify</div><div class="tech-chip-cat">E-commerce</div></div>
+            </div>
+            <div class="tech-chip">
+              <div class="tech-chip-icon" style="background:#dbeafe">📊</div>
+              <div><div class="tech-chip-name">GA4</div><div class="tech-chip-cat">Analytics</div></div>
+            </div>
+            <div class="tech-chip">
+              <div class="tech-chip-icon" style="background:#fee2e2">🎯</div>
+              <div><div class="tech-chip-name">Meta Pixel</div><div class="tech-chip-cat">Advertising</div></div>
+            </div>
+            <div class="tech-chip">
+              <div class="tech-chip-icon" style="background:#fef3c7">📧</div>
+              <div><div class="tech-chip-name">Klaviyo</div><div class="tech-chip-cat">Email</div></div>
+            </div>
+            <div class="tech-chip">
+              <div class="tech-chip-icon" style="background:#ede9fe">🔥</div>
+              <div><div class="tech-chip-name">Hotjar</div><div class="tech-chip-cat">Heatmaps</div></div>
+            </div>
+            <div class="tech-chip">
+              <div class="tech-chip-icon" style="background:#f0fdf4">🏷️</div>
+              <div><div class="tech-chip-name">GTM</div><div class="tech-chip-cat">Tag Manager</div></div>
+            </div>
+          </div>
+          <div class="conflict-flag" style="margin-top:14px">
+            <span>⚠</span>
+            <span>GA4 and Meta Pixel are firing pre-consent via GTM triggers set to "All Pages" instead of "Consent Granted". GCM v2 signal not detected in dataLayer.</span>
+          </div>
+        </div>
+
+        <div class="analysis-stream">
+          <div class="stream-dim">// Skill 4 — Site Debugger</div>
+          <div class="stream-green">✓ CookieYes script: detected (head)</div>
+          <div class="stream-green">✓ Banner: rendering correctly</div>
+          <div class="stream-yellow">⚠ GTM: 3 triggers fire on All Pages</div>
+          <div class="stream-yellow">⚠ GA4 config tag: no consent check</div>
+          <div class="stream-yellow">⚠ Meta Pixel: fires unconditionally</div>
+          <br>
+          <div class="stream-dim">// Skill 5 — Docs</div>
+          <div class="stream-green">✓ Matched: GCM v2 + GTM setup guide</div>
+          <div class="stream-green">✓ Matched: Shopify integration guide</div>
+          <br>
+          <div class="stream-dim">// Skill 6 — Draft</div>
+          <div class="stream-white">Hi Alex,</div>
+          <div class="stream-white">I can see GA4 and Meta Pixel are</div>
+          <div class="stream-white">configured to fire via GTM on all</div>
+          <div class="stream-white">pages, bypassing CookieYes consent</div>
+          <div class="stream-white">signals. Here's how to fix the</div>
+          <div class="stream-white">GTM triggers and enable GCM v2...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 8 — AUTO BUG FIX
+  ══════════════════════════════════════════ -->
+  <div class="slide s8" data-index="7">
+    <div class="slide-inner">
+      <div class="scene-header">
+        <div>
+          <div class="scene-number label" style="color:#818cf8">Scene 7 — BugDemo Page</div>
+          <h2 class="title" style="color:#f1f5f9">Jira Escalation + Claude Auto Bug Fix</h2>
+          <p class="sub" style="color:#64748b">ConsentStatsWidget — counters going negative, NaN% acceptance rate</p>
+        </div>
+        <div class="jira-key">CY-4821</div>
+      </div>
+
+      <div class="bug-layout">
+        <div>
+          <div class="code-block">
+            <div class="code-block-header buggy-header">⚠ Buggy Code</div>
+            <div class="code-line normal-line">function ConsentStatsWidget() {'{'}</div>
+            <div class="code-line normal-line">  const [accepted, setAccepted] = useState(0);</div>
+            <div class="code-line normal-line">  const [rejected, setRejected] = useState(0);</div>
+            <br>
+            <div class="code-line comment-line">  // Bug 1: decrements instead of incrementing</div>
+            <div class="code-line bug-line">  const handleAccept = () => setAccepted(c => c - 1);</div>
+            <br>
+            <div class="code-line comment-line">  // Bug 2: same issue for reject</div>
+            <div class="code-line bug-line">  const handleReject = () => setRejected(c => c - 1);</div>
+            <br>
+            <div class="code-line normal-line">  const total = accepted + rejected;</div>
+            <div class="code-line comment-line">  // Bug 3: division by zero → NaN%</div>
+            <div class="code-line bug-line">  const rate = Math.round((accepted / total) * 100);</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="jira-card">
+            <div class="label" style="color:#94a3b8;margin-bottom:8px">Jira Ticket Created</div>
+            <div class="jira-key">CY-4821</div>
+            <div class="jira-summary">Cookie consent widget counts going negative — acmestore.io</div>
+            <div class="jira-meta">
+              <span class="jira-tag j-auto">auto-reported</span>
+              <span class="jira-tag j-bug">bug</span>
+              <span class="jira-tag j-ai">ai-fix</span>
+            </div>
+            <div class="claude-badge">🤖 Claude analysed 3 root causes and posted fix as comment</div>
+          </div>
+
+          <div class="code-block">
+            <div class="code-block-header fixed-header">✓ Claude-Generated Fix</div>
+            <div class="code-line comment-line">  // Fix 1 &amp; 2: increment, not decrement</div>
+            <div class="code-line fix-line">  const handleAccept = () => setAccepted(c => c + 1);</div>
+            <div class="code-line fix-line">  const handleReject = () => setRejected(c => c + 1);</div>
+            <br>
+            <div class="code-line comment-line">  // Fix 3: zero-guard prevents NaN</div>
+            <div class="code-line fix-line">  const rate = total > 0 ? Math.round((accepted / total) * 100) : 0;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 9 — TONE CONTROL
+  ══════════════════════════════════════════ -->
+  <div class="slide s9" data-index="8">
+    <div class="slide-inner">
+      <div class="scene-header">
+        <div>
+          <div class="scene-number label" style="color:#7c3aed">Scene 8</div>
+          <h2 class="title" style="color:#111827">Tone Control — One Draft, Four Voices</h2>
+          <p class="sub">Agents can switch tone on any ticket — or write a custom tone instruction.</p>
+        </div>
+      </div>
+
+      <div class="tone-grid">
+        <div class="tone-card"><div class="tone-emoji">😊</div><div class="tone-name">Friendly</div><div class="tone-desc">Warm, empathetic, human</div></div>
+        <div class="tone-card selected"><div class="tone-emoji">👔</div><div class="tone-name">Professional</div><div class="tone-desc">Formal, polished</div></div>
+        <div class="tone-card"><div class="tone-emoji">🔧</div><div class="tone-name">Technical</div><div class="tone-desc">Precise, step-by-step</div></div>
+        <div class="tone-card"><div class="tone-emoji">⚡</div><div class="tone-name">Concise</div><div class="tone-desc">Under 5 sentences</div></div>
+      </div>
+
+      <div class="draft-compare">
+        <div class="draft-version dv-friendly">
+          <div class="dv-label">Friendly tone</div>
+          Hi Sarah! Great news — I've found the issue. WP Rocket's "Delay JS" feature is holding back the CookieYes script, which is why your banner went quiet. Here's a quick fix that should have you back up in minutes — just pop into WP Rocket settings and exclude the CookieYes script from the delay list. Let me know if you need a hand!
+        </div>
+        <div class="draft-version dv-concise" style="border-color:#ede9fe;background:#faf5ff">
+          <div class="dv-label" style="color:#7c3aed">Concise tone</div>
+          Hi Sarah,<br><br>
+          The issue is WP Rocket's "Delay JS execution" deferring the CookieYes script. Fix: exclude <code>cookieyes</code> from the delay list in WP Rocket settings. Guide linked below.<br><br>
+          Best regards, CookieYes Support
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 10 — CAPABILITIES SUMMARY
+  ══════════════════════════════════════════ -->
+  <div class="slide s10" data-index="9">
+    <div class="slide-inner">
+      <h2 class="title" style="color:#fff">Full Capabilities at a Glance</h2>
+      <p class="sub">Everything the AI Support Assistant can do — out of the box.</p>
+
+      <div class="caps-grid">
+        <div class="cap-card">
+          <div class="cap-icon">🎫</div>
+          <div class="cap-title">8-Skill AI Pipeline</div>
+          <div class="cap-desc">Ticket → Account → Stripe → Debug → Docs → Draft → Jira → Analysis — all streaming in real time via Claude Opus 4.5</div>
+        </div>
+        <div class="cap-card">
+          <div class="cap-icon">🤖</div>
+          <div class="cap-title">3 Intelligent Modes</div>
+          <div class="cap-desc">Normal (with account), Pre-sales (prospect, no account), Info-Gathering (account not found) — detected automatically</div>
+        </div>
+        <div class="cap-card">
+          <div class="cap-icon">💳</div>
+          <div class="cap-title">Stripe Billing Intelligence</div>
+          <div class="cap-desc">Live invoice lookup, refund eligibility verdict, subscription status — no manual checking needed</div>
+        </div>
+        <div class="cap-card">
+          <div class="cap-icon">🔍</div>
+          <div class="cap-title">Site Debugger</div>
+          <div class="cap-desc">Detects CMS, script position, plugin conflicts (WP Rocket, Cloudflare, Cookiebot) with specific fix recommendations</div>
+        </div>
+        <div class="cap-card">
+          <div class="cap-icon">🧪</div>
+          <div class="cap-title">Wappalyzer Tech Stack</div>
+          <div class="cap-desc">Auto-detects Shopify, WP, Next.js, GA4, GTM, HubSpot, Stripe and 40+ more technologies from customer domains</div>
+        </div>
+        <div class="cap-card">
+          <div class="cap-icon">🐛</div>
+          <div class="cap-title">AI Auto Bug Fix</div>
+          <div class="cap-desc">Claude Sonnet 4.6 reads buggy React/TS code, identifies root causes, generates patch, posts fix to Jira automatically</div>
+        </div>
+        <div class="cap-card">
+          <div class="cap-icon">📋</div>
+          <div class="cap-title">Price Quote Generator</div>
+          <div class="cap-desc">Formal CY-XXX quote with valid-until date, multi-domain pricing, VAT row — auto-generated from pre-sales tickets</div>
+        </div>
+        <div class="cap-card">
+          <div class="cap-icon">🎭</div>
+          <div class="cap-title">Ambiguous Query Detection</div>
+          <div class="cap-desc">When a ticket has 2-3 valid interpretations, the AI drafts separate complete replies for each — agent picks the right one</div>
+        </div>
+        <div class="cap-card">
+          <div class="cap-icon">🎨</div>
+          <div class="cap-title">Tone Control + Custom</div>
+          <div class="cap-desc">Friendly / Professional / Technical / Concise presets — or type any custom tone instruction to reshape the draft instantly</div>
+        </div>
+      </div>
+
+      <div class="stack-row">
+        <span class="stack-chip">Claude Opus 4.5</span>
+        <span class="stack-chip">Claude Sonnet 4.6</span>
+        <span class="stack-chip">Zendesk API</span>
+        <span class="stack-chip">Stripe API</span>
+        <span class="stack-chip">Jira REST API</span>
+        <span class="stack-chip">Wappalyzer</span>
+        <span class="stack-chip">React + TypeScript</span>
+        <span class="stack-chip">Express + MongoDB</span>
+        <span class="stack-chip">SSE Streaming</span>
+        <span class="stack-chip">Slack Integration</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SLIDE 11 — THANK YOU
+  ══════════════════════════════════════════ -->
+  <div class="slide s11" data-index="10">
+    <div class="glow3"></div>
+    <div class="slide-inner">
+      <h1>Built for <span>CookieYes</span></h1>
+      <p class="tagline">From ticket to drafted reply in under 10 seconds — powered by Claude AI.</p>
+      <div class="built-with">
+        Built with &nbsp;<strong>Claude Opus 4.5 &amp; Sonnet 4.6</strong>&nbsp; · AI Hackathon 2026
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- Nav -->
+<div class="nav">
+  <button id="prev" disabled>← Prev</button>
+  <span class="counter" id="counter">1 / 11</span>
+  <button id="next">Next →</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => slides[current === n ? n : current].classList.remove('exit'), 450);
+    current = n;
+    slides[current].classList.add('active');
+    document.getElementById('counter').textContent = `${current + 1} / ${total}`;
+    document.getElementById('prev').disabled = current === 0;
+    document.getElementById('next').disabled = current === total - 1;
+    document.getElementById('progress').style.width = `${((current + 1) / total) * 100}%`;
+  }
+
+  document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'Space') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+  });
+
+  goTo(0);
+</script>
+</body>
+</html>

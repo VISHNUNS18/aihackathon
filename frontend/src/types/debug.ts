@@ -42,6 +42,25 @@ export interface SiteDebugReport {
   conflicting_plugins: ConflictingPlugin[];
   detected_conflict_count: number;
 
+  // GCM status
+  gcm_status?: {
+    detected: boolean;
+    was_set_late: boolean;
+    entries: Record<string, { default: 'granted' | 'denied' | 'missing'; update: 'granted' | 'denied' | 'missing' }>;
+    warnings: string[];
+    verdict: 'ok' | 'warning' | 'not_found';
+    source: 'html_analysis' | 'mock';
+  };
+
+  // Technologies (Wappalyzer)
+  technologies_detected: Array<{
+    name: string;
+    category: string;
+    confidence?: number;
+    version?: string;
+  }>;
+  technologies_source: 'wappalyzer_api' | 'local_signatures';
+
   // Verdict
   verdict: 'ok' | 'conflict' | 'script_missing' | 'error';
   recommended_fix: string | null;

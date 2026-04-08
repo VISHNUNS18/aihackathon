@@ -1,16 +1,70 @@
-import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
+import { ChevronDown, ChevronUp, BookOpen, Globe, Mail, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
-import { useWorkflowStore } from '@/store/workflowStore';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
 import OutputRenderer from './OutputRenderer';
 import AgentGate from './AgentGate';
+import TechStackPanel from './TechStackPanel';
+import GCMStatusPanel from './GCMStatusPanel';
+import CertificationPanel from './CertificationPanel';
 import Spinner from '@/components/shared/Spinner';
+import type { SiteDebugReport } from '@/types/debug';
 
-export default function WorkflowPanel() {
-  const { streamOutput, isRunning, error, docResults } = useWorkflowStore();
-  const [outputExpanded, setOutputExpanded] = useState(true);
+interface Props {
+  /** If provided, reads state for this specific ticket.
+   *  Falls back to the active ticket in the queue store. */
+  ticketId?: string;
+}
+
+export default function WorkflowPanel({ ticketId }: Props) {
+  const [outputExpanded, setOutputExpanded] = useState(false);
+
+  // Resolve which ticket to display
+  const activeTicketId = useTicketQueueStore((s) => s.activeTicketId);
+  const resolvedId = ticketId ?? activeTicketId ?? '';
+  const ticket = useTicketQueueStore((s) => (resolvedId ? s.tickets[resolvedId] : undefined));
+
+  const streamOutput  = ticket?.streamOutput  ?? '';
+  const isRunning     = ticket?.status === 'running';
+  const error         = ticket?.error         ?? null;
+  const docResults    = ticket?.docResults    ?? [];
+  const debug         = ticket?.debug         ?? null;
+  const bundle        = ticket?.bundle        ?? null;
+  const account       = ticket?.account       ?? null;
+  const isCertRequest = ticket?.isCertRequest ?? false;
+
+  const debugReport = debug as SiteDebugReport | null;
+
+  const websiteUrl = debugReport?.final_url || (account?.domain ? `https://${account.domain}` : null);
+  const email = (bundle as { requester?: { email?: string } } | null)?.requester?.email
+    ?? (account as { billing_email?: string } | null)?.billing_email
+    ?? null;
 
   return (
     <div className="space-y-3">
+
+      {/* ── Website + email context bar ──────────────────────────── */}
+      {(websiteUrl || email) && (
+        <div className="flex items-center gap-3 px-3 py-2 bg-white border border-gray-100 rounded-xl text-xs text-gray-500 flex-wrap">
+          {websiteUrl && (
+            <a
+              href={websiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-brand hover:underline font-medium min-w-0"
+            >
+              <Globe className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">{websiteUrl.replace(/^https?:\/\//, '')}</span>
+            </a>
+          )}
+          {websiteUrl && email && <span className="text-gray-200">|</span>}
+          {email && (
+            <span className="flex items-center gap-1.5 min-w-0">
+              <Mail className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+              <span className="truncate">{email}</span>
+            </span>
+          )}
+        </div>
+      )}
 
       {/* ── Error ──────────────────────────────────────────────────── */}
       {error && (
@@ -27,11 +81,24 @@ export default function WorkflowPanel() {
             <span className="text-xs font-semibold text-cyan-700">Documentation matched</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {docResults.map((doc) => (
-              <span key={doc.id} className="text-xs px-2.5 py-1 bg-white border border-cyan-200 text-cyan-700 rounded-full">
-                {doc.title}
-              </span>
-            ))}
+            {docResults.map((doc) =>
+              doc.url ? (
+                <a
+                  key={doc.id}
+                  href={doc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs px-2.5 py-1 bg-white border border-cyan-200 text-cyan-700 rounded-full hover:bg-cyan-50 hover:border-cyan-400 transition-colors"
+                >
+                  {doc.title}
+                  <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                </a>
+              ) : (
+                <span key={doc.id} className="text-xs px-2.5 py-1 bg-white border border-cyan-200 text-cyan-700 rounded-full">
+                  {doc.title}
+                </span>
+              )
+            )}
           </div>
         </div>
       )}
@@ -75,8 +142,21 @@ export default function WorkflowPanel() {
         </div>
       )}
 
-      {/* ── Next Response ─────────────────────────────────────────── */}
-      <AgentGate />
+      {/* ── GCM status ───────────────────────────────────────────── */}
+      {debugReport?.gcm_status && (
+        <GCMStatusPanel debug={debugReport} />
+      )}
+
+      {/* ── Tech stack ───────────────────────────────────────────── */}
+      {debugReport && debugReport.technologies_detected?.length > 0 && (
+        <TechStackPanel debug={debugReport} />
+      )}
+
+      {/* ── Certification ────────────────────────────────────────── */}
+      {isCertRequest && <CertificationPanel />}
+
+      {/* ── Draft / Agent Gate ────────────────────────────────────── */}
+      <AgentGate ticketId={resolvedId} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ export interface DocArticle {
   category: 'Getting Started' | 'Technical' | 'Billing' | 'Compliance' | 'Account' | 'Presales' | 'Features';
   tags: string[];
   content: string;
+  url?: string;
 }
 
 export const COOKIEYES_DOCS: DocArticle[] = [
@@ -11,6 +12,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   // ─── GETTING STARTED ──────────────────────────────────────────────────────────
   {
     id: 'gs_install_general',
+    url: 'https://www.cookieyes.com/documentation/how-to-add-a-cookie-banner-on-website/',
     title: 'How to install the CookieYes script',
     category: 'Getting Started',
     tags: ['install', 'setup', 'script', 'banner', 'head', 'getting started', 'not showing'],
@@ -18,6 +20,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'gs_install_wordpress',
+    url: 'https://www.cookieyes.com/documentation/installing-cookieyes-on-wordpress/',
     title: 'Installing CookieYes on WordPress',
     category: 'Getting Started',
     tags: ['wordpress', 'wp', 'plugin', 'install', 'setup', 'cms'],
@@ -25,6 +28,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'gs_install_shopify',
+    url: 'https://www.cookieyes.com/documentation/installing-cookieyes-on-shopify/',
     title: 'Installing CookieYes on Shopify',
     category: 'Getting Started',
     tags: ['shopify', 'install', 'setup', 'theme', 'liquid', 'ecommerce'],
@@ -32,6 +36,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'gs_install_webflow_wix',
+    url: 'https://www.cookieyes.com/documentation/how-to-add-a-cookie-banner-on-website/',
     title: 'Installing on Webflow, Wix, or Squarespace',
     category: 'Getting Started',
     tags: ['webflow', 'wix', 'squarespace', 'custom code', 'install', 'setup', 'no-code'],
@@ -41,6 +46,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   // ─── TECHNICAL ────────────────────────────────────────────────────────────────
   {
     id: 'tech_banner_not_showing',
+    url: 'https://www.cookieyes.com/documentation/cookie-banner-not-showing/',
     title: 'Banner not showing — full troubleshooting guide',
     category: 'Technical',
     tags: ['banner', 'not showing', 'not loading', 'not appearing', 'disappeared', 'missing', 'invisible', 'troubleshoot'],
@@ -48,6 +54,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'tech_wp_rocket',
+    url: 'https://www.cookieyes.com/documentation/cookie-banner-not-showing/#wp-rocket',
     title: 'WP Rocket conflict fix',
     category: 'Technical',
     tags: ['wp rocket', 'wprocket', 'caching', 'minify', 'defer', 'delay js', 'conflict', 'wordpress', 'banner disappeared'],
@@ -55,6 +62,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'tech_cloudflare',
+    url: 'https://www.cookieyes.com/documentation/cookie-banner-not-showing/#cloudflare',
     title: 'Cloudflare Rocket Loader conflict fix',
     category: 'Technical',
     tags: ['cloudflare', 'rocket loader', 'cdn', 'conflict', 'cfasync', 'data-cfasync'],
@@ -62,6 +70,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'tech_gcm_v2',
+    url: 'https://www.cookieyes.com/documentation/google-consent-mode-v2/',
     title: 'Google Consent Mode v2 (GCM) setup and troubleshooting',
     category: 'Technical',
     tags: ['gcm', 'google consent mode', 'v2', 'gtm', 'analytics', 'ga4', 'ads', 'attribution', 'gtag'],
@@ -71,6 +80,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   // ─── BILLING ──────────────────────────────────────────────────────────────────
   {
     id: 'billing_plans',
+    url: 'https://www.cookieyes.com/pricing/',
     title: 'CookieYes plans and pricing overview',
     category: 'Billing',
     tags: ['plans', 'pricing', 'upgrade', 'free', 'starter', 'professional', 'business', 'enterprise', 'pageviews', 'compare'],
@@ -78,6 +88,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'billing_refund',
+    url: 'https://www.cookieyes.com/terms-and-conditions/#refunds',
     title: 'Refund policy and eligibility',
     category: 'Billing',
     tags: ['refund', 'money back', 'cancel', 'return', 'policy', 'eligible', 'annual', 'monthly', '14 days', '30 days'],
@@ -85,6 +96,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'billing_invoice',
+    url: 'https://www.cookieyes.com/documentation/account-billing/',
     title: 'Invoice management and regeneration',
     category: 'Billing',
     tags: ['invoice', 'receipt', 'vat', 'billing address', 'regenerate', 'tax', 'b2b'],
@@ -92,13 +104,15 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'billing_payment_failed',
+    url: 'https://www.cookieyes.com/documentation/account-billing/#payment-failed',
     title: 'Payment failed — card declined handling',
     category: 'Billing',
     tags: ['payment failed', 'card declined', 'past due', 'billing', 'stripe', 'update card', 'subscription at risk'],
-    content: `When payment fails, Stripe automatically retries up to 3 times over 7 days. Account stays active (marked "past_due") during retries. Resolution steps: (1) Send the customer a Stripe payment update link (Customer Portal) from the admin panel. (2) Ask them to add a new card and set it as default. Common decline reasons: insufficient funds, card expired, bank blocking recurring SaaS charge, card limit reached. If customer says card is valid but still declining: advise them to contact their bank to whitelist charges from "CookieYes / Mozilor" for recurring billing. Account suspension: occurs after all retries fail. Reinstate by processing a successful manual payment or waiting for the customer to update their card and triggering a retry.`,
+    content: `When payment fails, Stripe automatically retries up to 3 times over 7 days. Account stays active (marked "past_due") during retries. Resolution steps: (1) Send the customer a Stripe payment update link (Customer Portal) from the admin panel. (2) Ask them to add a new card and set it as default. Common decline reasons: insufficient funds, card expired, bank blocking recurring SaaS charge, card limit reached. If customer says card is valid but still declining: advise them to contact their bank to whitelist charges from "CookieYes" for recurring billing. Account suspension: occurs after all retries fail. Reinstate by processing a successful manual payment or waiting for the customer to update their card and triggering a retry.`,
   },
   {
     id: 'billing_downgrade',
+    url: 'https://www.cookieyes.com/documentation/account-billing/#downgrade',
     title: 'Plan downgrade process',
     category: 'Billing',
     tags: ['downgrade', 'cancel', 'lower plan', 'reduce', 'free plan', 'feature loss'],
@@ -108,13 +122,15 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   // ─── COMPLIANCE ───────────────────────────────────────────────────────────────
   {
     id: 'compliance_gdpr',
+    url: 'https://www.cookieyes.com/documentation/gdpr-compliance/',
     title: 'GDPR compliance with CookieYes',
     category: 'Compliance',
     tags: ['gdpr', 'europe', 'eu', 'privacy', 'compliance', 'consent', 'regulation', 'dpa'],
-    content: `CookieYes is fully compliant with the EU General Data Protection Regulation (GDPR). What CookieYes handles: (1) Prior explicit consent before non-essential cookies, (2) Granular consent by category (Necessary, Analytics, Marketing, Functional), (3) Easy withdrawal — "Manage Cookies" button always accessible, (4) Consent logs stored for 3 years for audit purposes, (5) Auto-generated cookie declaration/policy page updated after each scan. Setup: Dashboard → Settings → Regulations → GDPR → Enable → set consent model to Opt-in. CookieYes acts as a data processor — customers must include CookieYes/Mozilor in their privacy policy as a sub-processor. For DPAs (Data Processing Agreements), direct to legal@cookieyes.com.`,
+    content: `CookieYes is fully compliant with the EU General Data Protection Regulation (GDPR). What CookieYes handles: (1) Prior explicit consent before non-essential cookies, (2) Granular consent by category (Necessary, Analytics, Marketing, Functional), (3) Easy withdrawal — "Manage Cookies" button always accessible, (4) Consent logs stored for 3 years for audit purposes, (5) Auto-generated cookie declaration/policy page updated after each scan. Setup: Dashboard → Settings → Regulations → GDPR → Enable → set consent model to Opt-in. CookieYes acts as a data processor — customers must include CookieYes in their privacy policy as a sub-processor. For DPAs (Data Processing Agreements), direct to legal@cookieyes.com.`,
   },
   {
     id: 'compliance_ccpa',
+    url: 'https://www.cookieyes.com/documentation/ccpa-compliance/',
     title: 'CCPA/CPRA compliance with CookieYes',
     category: 'Compliance',
     tags: ['ccpa', 'california', 'us', 'usa', 'opt out', 'do not sell', 'cpra', 'privacy'],
@@ -122,6 +138,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'compliance_lgpd_pdpa',
+    url: 'https://www.cookieyes.com/documentation/lgpd-compliance/',
     title: 'LGPD (Brazil) and PDPA (Thailand/Asia) compliance',
     category: 'Compliance',
     tags: ['lgpd', 'brazil', 'pdpa', 'thailand', 'asia', 'international', 'global', 'pipeda', 'popia'],
@@ -131,6 +148,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   // ─── ACCOUNT ──────────────────────────────────────────────────────────────────
   {
     id: 'account_2fa',
+    url: 'https://www.cookieyes.com/documentation/two-factor-authentication/',
     title: '2FA reset — locked out of account',
     category: 'Account',
     tags: ['2fa', 'two factor', 'authenticator', 'locked out', 'reset', 'google authenticator', 'backup codes'],
@@ -138,6 +156,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'account_deletion',
+    url: 'https://www.cookieyes.com/documentation/account-deletion/',
     title: 'Account deletion and GDPR right to erasure',
     category: 'Account',
     tags: ['delete', 'deletion', 'gdpr erasure', 'close account', 'right to erasure', 'article 17', 'data removal', 'cancel'],
@@ -145,6 +164,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'account_agency_transfer',
+    url: 'https://www.cookieyes.com/documentation/agency-plan/',
     title: 'Agency accounts and website transfer rules',
     category: 'Account',
     tags: ['agency', 'transfer', 'multi-site', 'client', 'websites', 'organization', 'credit'],
@@ -154,6 +174,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   // ─── PRESALES ─────────────────────────────────────────────────────────────────
   {
     id: 'presales_faq',
+    url: 'https://www.cookieyes.com/pricing/',
     title: 'Pre-sales FAQ — demo, trial, and evaluation',
     category: 'Presales',
     tags: ['presales', 'demo', 'trial', 'evaluation', 'prospect', 'sign up', 'free trial', 'no credit card'],
@@ -161,6 +182,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'presales_plan_guide',
+    url: 'https://www.cookieyes.com/pricing/',
     title: 'Plan recommendation guide',
     category: 'Presales',
     tags: ['which plan', 'plan recommendation', 'pageviews', 'domains', 'gcm', 'features', 'presales', 'pricing'],
@@ -168,6 +190,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'presales_competitor',
+    url: 'https://www.cookieyes.com/cookieyes-vs-cookiebot/',
     title: 'CookieYes vs competitors (Cookiebot, OneTrust, Osano)',
     category: 'Presales',
     tags: ['cookiebot', 'onetrust', 'osano', 'competitor', 'comparison', 'switch', 'migrate', 'alternative', 'vs'],
@@ -175,6 +198,7 @@ export const COOKIEYES_DOCS: DocArticle[] = [
   },
   {
     id: 'presales_multi_domain',
+    url: 'https://www.cookieyes.com/documentation/agency-plan/',
     title: 'Multi-domain and agency use for prospects',
     category: 'Presales',
     tags: ['multi domain', 'multiple sites', 'agency', 'clients', 'subdomains', 'multiple websites', 'white label'],

@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Bug, CheckCircle, ExternalLink, AlertCircle, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Bug, CheckCircle, ExternalLink, AlertCircle, ChevronDown, Loader2, Sparkles, ArrowRight } from 'lucide-react';
 import Modal from '@/components/shared/Modal';
-import { useWorkflowStore } from '@/store/workflowStore';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
 import { useJira } from '@/hooks/useJira';
 import type { SiteDebugReport } from '@/types/debug';
+import api from '@/lib/api';
+
+const DEMO_BUG_TICKET = '99999';
+
+interface AutoFixResult {
+  rootCause: string;
+  fixedCode: string;
+  explanation: string;
+  jiraUrl: string;
+}
 
 interface JiraModalProps {
   open: boolean;
@@ -55,9 +66,20 @@ function SelectField({
 }
 
 export default function JiraModal({ open, onClose }: JiraModalProps) {
-  const { ticketId, account, debug: debugRaw, category, bundle, jira } = useWorkflowStore();
+  const navigate = useNavigate();
+  const activeTicketId = useTicketQueueStore((s) => s.activeTicketId);
+  const activeTicket   = useTicketQueueStore((s) => activeTicketId ? s.tickets[activeTicketId] : undefined);
+  const ticketId  = activeTicket?.ticketId  ?? '';
+  const account   = activeTicket?.account   ?? null;
+  const debugRaw  = activeTicket?.debug     ?? null;
+  const category  = activeTicket?.category  ?? '';
+  const bundle    = activeTicket?.bundle    ?? null;
+  const jira      = activeTicket?.jira      ?? null;
   const debug = debugRaw as SiteDebugReport | null;
   const { raiseIssue, loading, error } = useJira();
+  const [autoFix, setAutoFix]   = useState<AutoFixResult | null>(null);
+  const [fixing, setFixing]     = useState(false);
+  const isDemoBug = String(ticketId) === DEMO_BUG_TICKET;
 
   const ticketPriority = bundle?.ticket?.priority ?? 'normal';
 
@@ -85,21 +107,22 @@ export default function JiraModal({ open, onClose }: JiraModalProps) {
   const [description, setDescription] = useState(defaultDescription);
   const [project,     setProject]     = useState('CY');
   const [issueType,   setIssueType]   = useState('Bug');
-  const [priority,    setPriority]    = useState(ticketPriority);
+  const [priority,    setPriority]    = useState<string>(ticketPriority);
 
   useEffect(() => {
     if (open) {
       setSummary(defaultSummary);
       setDescription(defaultDescription);
       setProject('CY');
-      setIssueType('Bug');
+      setIssueType(isDemoBug ? 'Bug' : 'Bug');
       setPriority(ticketPriority);
+      setAutoFix(null);
     }
   }, [open, ticketId]);
 
   const handleCreate = async () => {
     if (!summary.trim()) return;
-    await raiseIssue({
+    const issue = await raiseIssue({
       ticketId,
       domain: account?.domain ?? '',
       summary: `[${issueType}] ${summary.trim().replace(/^\[.*?\]\s*/, '')}`,
@@ -111,6 +134,19 @@ export default function JiraModal({ open, onClose }: JiraModalProps) {
         description.trim(),
       ].join('\n'),
     });
+
+    // For the demo bug ticket, automatically trigger AI fix via Jira MCP
+    if (issue?.key && isDemoBug) {
+      setFixing(true);
+      try {
+        const { data } = await api.post('/api/jira/apply-fix', { jiraKey: issue.key });
+        setAutoFix(data);
+      } catch {
+        // Non-fatal — fix generation failed silently
+      } finally {
+        setFixing(false);
+      }
+    }
   };
 
   return (
@@ -125,6 +161,7 @@ export default function JiraModal({ open, onClose }: JiraModalProps) {
         {/* ── Success state ─────────────────────────────────────────── */}
         {jira ? (
           <div className="space-y-4">
+            {/* Ticket created */}
             <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-xl">
               <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
               <div>
@@ -133,7 +170,49 @@ export default function JiraModal({ open, onClose }: JiraModalProps) {
                 <p className="text-xs text-green-600 mt-1 line-clamp-2">{jira.summary}</p>
               </div>
             </div>
-            <div className="flex gap-2">
+
+            {/* Auto-fix status — demo bug only */}
+            {isDemoBug && (
+              <div className={`flex items-start gap-3 p-4 rounded-xl border ${
+                fixing    ? 'bg-blue-50 border-blue-200' :
+                autoFix   ? 'bg-purple-50 border-purple-200' :
+                            'bg-gray-50 border-gray-200'
+              }`}>
+                {fixing ? (
+                  <Loader2 className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5 animate-spin" />
+                ) : autoFix ? (
+                  <Sparkles className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                ) : (
+                  <Sparkles className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                )}
+                <div className="min-w-0 flex-1">
+                  {fixing && (
+                    <p className="text-sm font-semibold text-blue-700">AI generating fix…</p>
+                  )}
+                  {!fixing && autoFix && (
+                    <>
+                      <p className="text-sm font-semibold text-purple-700">AI fix generated & posted to Jira</p>
+                      {autoFix.rootCause && (
+                        <p className="text-xs text-purple-600 mt-1 leading-relaxed">{autoFix.rootCause}</p>
+                      )}
+                      {autoFix.fixedCode && (
+                        <pre className="mt-2 bg-white border border-purple-100 rounded-lg p-2.5 text-xs font-mono text-gray-700 overflow-x-auto leading-relaxed max-h-48">
+                          <code>{autoFix.fixedCode}</code>
+                        </pre>
+                      )}
+                      {autoFix.explanation && (
+                        <p className="text-xs text-purple-600 mt-2 leading-relaxed whitespace-pre-line">{autoFix.explanation}</p>
+                      )}
+                    </>
+                  )}
+                  {!fixing && !autoFix && (
+                    <p className="text-sm text-gray-500">Fix generation skipped</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-2 flex-wrap">
               <a
                 href={jira.url}
                 target="_blank"
@@ -143,6 +222,16 @@ export default function JiraModal({ open, onClose }: JiraModalProps) {
                 <ExternalLink className="w-4 h-4" />
                 Open {jira.key} in Jira
               </a>
+              {isDemoBug && autoFix && (
+                <button
+                  onClick={() => { onClose(); navigate(`/bug-demo?jira=${jira.key}`); }}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  <Bug className="w-4 h-4" />
+                  View Bug Fix Demo
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
               <button
                 onClick={onClose}
                 className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-lg hover:bg-gray-50 transition-colors"

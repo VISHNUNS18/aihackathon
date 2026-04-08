@@ -12,6 +12,9 @@ export interface Account {
   scanner_last_run: string;
   cookies_detected: number;
   regulation: 'GDPR' | 'CCPA' | 'US State' | 'Custom';
+  consent_template?: 'GDPR' | 'CCPA' | 'GDPR & US State Laws';
+  iab_tcf_enabled?: boolean;
+  geo_target?: 'worldwide' | 'eu_and_uk' | 'select_countries';
   appsumo_deal: boolean;
   created_at: string;
   product: string;
@@ -22,6 +25,7 @@ export interface Account {
     billing_cycle: { start: string; end: string };
   };
   scan_history?: ScanRecord[];
+  cookie_list?: CookieDetail[];
 
   // Extended admin fields
   website?: WebsiteDetails;
@@ -39,6 +43,17 @@ export interface ScanRecord {
   cookies: number;
   scripts: number;
   failed_reason?: string | null;
+  scanned_urls?: string[];
+}
+
+export interface CookieDetail {
+  name: string;
+  category: string;
+  domain: string;
+  duration: string;
+  description?: string;
+  script_url_pattern?: string;
+  type: 'first_party' | 'third_party';
 }
 
 export interface WebsiteDetails {
