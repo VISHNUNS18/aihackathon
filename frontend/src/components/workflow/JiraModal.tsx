@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bug, CheckCircle, ExternalLink, AlertCircle, ChevronDown, Loader2, Sparkles, ArrowRight } from 'lucide-react';
 import Modal from '@/components/shared/Modal';
-import { useWorkflowStore } from '@/store/workflowStore';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
 import { useJira } from '@/hooks/useJira';
 import type { SiteDebugReport } from '@/types/debug';
 import api from '@/lib/api';
@@ -67,7 +67,14 @@ function SelectField({
 
 export default function JiraModal({ open, onClose }: JiraModalProps) {
   const navigate = useNavigate();
-  const { ticketId, account, debug: debugRaw, category, bundle, jira } = useWorkflowStore();
+  const activeTicketId = useTicketQueueStore((s) => s.activeTicketId);
+  const activeTicket   = useTicketQueueStore((s) => activeTicketId ? s.tickets[activeTicketId] : undefined);
+  const ticketId  = activeTicket?.ticketId  ?? '';
+  const account   = activeTicket?.account   ?? null;
+  const debugRaw  = activeTicket?.debug     ?? null;
+  const category  = activeTicket?.category  ?? '';
+  const bundle    = activeTicket?.bundle    ?? null;
+  const jira      = activeTicket?.jira      ?? null;
   const debug = debugRaw as SiteDebugReport | null;
   const { raiseIssue, loading, error } = useJira();
   const [autoFix, setAutoFix]   = useState<AutoFixResult | null>(null);

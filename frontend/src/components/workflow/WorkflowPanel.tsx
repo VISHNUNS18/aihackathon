@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronUp, BookOpen, Globe, Mail, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
-import { useWorkflowStore } from '@/store/workflowStore';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
 import OutputRenderer from './OutputRenderer';
 import AgentGate from './AgentGate';
 import TechStackPanel from './TechStackPanel';
@@ -9,10 +9,30 @@ import CertificationPanel from './CertificationPanel';
 import Spinner from '@/components/shared/Spinner';
 import type { SiteDebugReport } from '@/types/debug';
 
-export default function WorkflowPanel() {
-  const { streamOutput, isRunning, error, docResults, debug, bundle, account, isCertRequest } = useWorkflowStore();
-  const debugReport = debug as SiteDebugReport | null;
+interface Props {
+  /** If provided, reads state for this specific ticket.
+   *  Falls back to the active ticket in the queue store. */
+  ticketId?: string;
+}
+
+export default function WorkflowPanel({ ticketId }: Props) {
   const [outputExpanded, setOutputExpanded] = useState(false);
+
+  // Resolve which ticket to display
+  const activeTicketId = useTicketQueueStore((s) => s.activeTicketId);
+  const resolvedId = ticketId ?? activeTicketId ?? '';
+  const ticket = useTicketQueueStore((s) => (resolvedId ? s.tickets[resolvedId] : undefined));
+
+  const streamOutput  = ticket?.streamOutput  ?? '';
+  const isRunning     = ticket?.status === 'running';
+  const error         = ticket?.error         ?? null;
+  const docResults    = ticket?.docResults    ?? [];
+  const debug         = ticket?.debug         ?? null;
+  const bundle        = ticket?.bundle        ?? null;
+  const account       = ticket?.account       ?? null;
+  const isCertRequest = ticket?.isCertRequest ?? false;
+
+  const debugReport = debug as SiteDebugReport | null;
 
   const websiteUrl = debugReport?.final_url || (account?.domain ? `https://${account.domain}` : null);
   const email = (bundle as { requester?: { email?: string } } | null)?.requester?.email
@@ -123,20 +143,20 @@ export default function WorkflowPanel() {
       )}
 
       {/* ── GCM status ───────────────────────────────────────────── */}
-      {debugReport && debugReport.gcm_status && (
+      {debugReport?.gcm_status && (
         <GCMStatusPanel debug={debugReport} />
       )}
 
-      {/* ── Tech stack (Wappalyzer) ───────────────────────────────── */}
+      {/* ── Tech stack ───────────────────────────────────────────── */}
       {debugReport && debugReport.technologies_detected?.length > 0 && (
         <TechStackPanel debug={debugReport} />
       )}
 
-      {/* ── Certification / Document request ─────────────────────── */}
+      {/* ── Certification ────────────────────────────────────────── */}
       {isCertRequest && <CertificationPanel />}
 
-      {/* ── Next Response ─────────────────────────────────────────── */}
-      <AgentGate />
+      {/* ── Draft / Agent Gate ────────────────────────────────────── */}
+      <AgentGate ticketId={resolvedId} />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import {
   FileCheck, FileX, Download, ExternalLink, Shield,
   Slack, Mail, CheckCircle, AlertTriangle, Loader, Send, PenLine,
 } from 'lucide-react';
-import { useWorkflowStore } from '@/store/workflowStore';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
 import type { CertSearchResult, CertEscalationResult } from '@/types/certification';
 import api from '@/lib/api';
 
@@ -28,7 +28,12 @@ function formatKb(kb: number): string {
 }
 
 export default function CertificationPanel() {
-  const { certResult, ticketId, bundle, account } = useWorkflowStore();
+  const activeTicketId = useTicketQueueStore((s) => s.activeTicketId);
+  const activeTicket   = useTicketQueueStore((s) => activeTicketId ? s.tickets[activeTicketId] : undefined);
+  const certResult = activeTicket?.certResult ?? null;
+  const ticketId   = activeTicket?.ticketId   ?? '';
+  const bundle     = activeTicket?.bundle     ?? null;
+  const account    = activeTicket?.account    ?? null;
   const [escalating, setEscalating]           = useState(false);
   const [escalated, setEscalated]             = useState<CertEscalationResult | null>(null);
   const [notes, setNotes]                     = useState('');

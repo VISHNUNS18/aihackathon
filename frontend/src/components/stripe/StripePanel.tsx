@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useWorkflowStore } from '@/store/workflowStore';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import RefundChecker from './RefundChecker';
 import Badge from '@/components/shared/Badge';
@@ -7,7 +7,10 @@ import Badge from '@/components/shared/Badge';
 const TABS = ['Overview', 'Invoices', 'Charges', 'Refund Check'] as const;
 
 export default function StripePanel() {
-  const stripe = useWorkflowStore((s) => s.stripe);
+  const activeTicketId = useTicketQueueStore((s) => s.activeTicketId);
+  const stripe = useTicketQueueStore((s) =>
+    activeTicketId ? s.tickets[activeTicketId]?.stripe : undefined
+  );
   const [tab, setTab] = useState<(typeof TABS)[number]>('Overview');
 
   if (!stripe) {

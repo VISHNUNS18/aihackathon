@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import api from '@/lib/api';
-import { useWorkflowStore } from '@/store/workflowStore';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
 import type { JiraIssue } from '@/types/jira';
 
 export function useJira() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const setJira = useWorkflowStore((s) => s.setJira);
 
   const raiseIssue = async (payload: {
     ticketId: string;
@@ -18,7 +17,11 @@ export function useJira() {
     setError(null);
     try {
       const { data } = await api.post('/api/jira/issue', payload);
-      setJira(data);
+      // Store jira result on the specific ticket
+      const activeId = useTicketQueueStore.getState().activeTicketId;
+      if (activeId) {
+        useTicketQueueStore.getState().updateTicket(activeId, { jira: data });
+      }
       return data;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Jira error';
