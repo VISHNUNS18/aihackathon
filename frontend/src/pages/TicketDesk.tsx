@@ -13,7 +13,7 @@ import AccountSnapshot from '@/components/account/AccountSnapshot';
 import {
   Zap, CreditCard, User,
   ChevronsLeft, ChevronsRight,
-  MessageSquare, Sparkles, ListChecks, CheckCircle,
+  MessageSquare, Sparkles, ListChecks, CheckCircle, X,
 } from 'lucide-react';
 
 type RightTab = 'workflow' | 'account' | 'stripe';
@@ -50,9 +50,20 @@ export default function TicketDesk() {
   const [rightTab, setRightTab]   = useState<RightTab>('workflow');
   const [convSize, setConvSize]   = useState<ConvSize>('compact');
   const [queueOpen, setQueueOpen] = useState(true);
+  const [aiPopupOpen, setAiPopupOpen] = useState(false);
 
   // URL param: auto-run ticket from deep-link
-  useEffect(() => { if (paramId) runSingle(paramId); }, [paramId]);
+  // Skip if ticket is already running or done (e.g. pre-fetched completed tickets)
+  useEffect(() => {
+    if (!paramId) return;
+    const existing = useTicketQueueStore.getState().tickets[paramId];
+    if (existing && (existing.status === 'done' || existing.status === 'running')) {
+      // Just make it the active ticket, don't re-run
+      useTicketQueueStore.getState().setActiveTicket(paramId);
+      return;
+    }
+    runSingle(paramId);
+  }, [paramId]);
 
   const tabs: { key: RightTab; label: string; icon: React.ReactNode; show: boolean }[] = [
     { key: 'workflow', label: 'AI Analysis', icon: <Zap className="w-3 h-3" />,        show: true },
@@ -191,14 +202,6 @@ export default function TicketDesk() {
               {convSize === 'collapsed' && (
                 <div className="flex-1 flex flex-col items-center pt-3 gap-2">
 
-                  {/* AI activity icon */}
-                  {skill7Status === 'running' && (
-                    <Sparkles className="w-3 h-3 text-amber-400 animate-pulse flex-shrink-0" />
-                  )}
-                  {activeTicket?.status === 'done' && draftReady && (
-                    <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
-                  )}
-
                   {/* Mini vertical skill progress — only while processing */}
                   {anySkillRunning && (
                     <div className="flex flex-col items-center gap-0.5">
@@ -220,9 +223,34 @@ export default function TicketDesk() {
                     </div>
                   )}
 
+                  {/* AI Analysis tab — clickable, opens popup */}
+                  <button
+                    onClick={() => setAiPopupOpen(true)}
+                    title="View AI Analysis"
+                    className={`flex flex-col items-center gap-1 px-1 py-2 rounded-lg transition-all w-8 ${
+                      draftReady
+                        ? 'text-brand hover:bg-brand/10 cursor-pointer'
+                        : skill7Status === 'running'
+                        ? 'text-amber-400 cursor-default'
+                        : 'text-gray-300 cursor-default'
+                    }`}
+                    disabled={!draftReady && skill7Status !== 'running'}
+                  >
+                    <Sparkles className={`w-3.5 h-3.5 flex-shrink-0 ${skill7Status === 'running' ? 'animate-pulse' : ''}`} />
+                    <span
+                      className="text-[9px] font-semibold uppercase tracking-wider flex-shrink-0"
+                      style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+                    >
+                      AI
+                    </span>
+                    {draftReady && (
+                      <CheckCircle className="w-2.5 h-2.5 text-green-400 flex-shrink-0" />
+                    )}
+                  </button>
+
                   {/* Ticket ID */}
                   <span
-                    className="text-[10px] font-mono text-gray-400 flex-shrink-0"
+                    className="text-[10px] font-mono text-gray-400 flex-shrink-0 mt-auto mb-2"
                     style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.05em' }}
                   >
                     #{(bundle as unknown as { ticket?: { id?: string | number } }).ticket?.id ?? '—'}
@@ -282,6 +310,46 @@ export default function TicketDesk() {
           </div>
         )}
       </div>
+
+      {/* ── AI Analysis Popup ─────────────────────────────────────────── */}
+      {aiPopupOpen && activeTicketId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            onClick={() => setAiPopupOpen(false)}
+          />
+          <div className="relative bg-gray-50 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[88vh] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-white flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-brand" />
+                <span className="text-sm font-semibold text-gray-800">AI Analysis</span>
+                <span className="text-xs font-mono text-gray-400">#{activeTicketId}</span>
+                {draftReady && (
+                  <span className="flex items-center gap-1 text-[10px] font-semibold text-green-600 bg-green-50 border border-green-100 px-2 py-0.5 rounded-full">
+                    <CheckCircle className="w-2.5 h-2.5" /> Ready
+                  </span>
+                )}
+                {skill7Status === 'running' && (
+                  <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full animate-pulse">
+                    Generating…
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => setAiPopupOpen(false)}
+                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <WorkflowPanel ticketId={activeTicketId} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Ticket, ArrowRight, CheckCircle2, Loader2, Sparkles, Send } from 'lucide-react';
 
 import MetricCard from '@/components/shared/MetricCard';
 import { useHistoryStore } from '@/store/historyStore';
+import { useTicketQueue } from '@/hooks/useTicketQueue';
+import { useTicketQueueStore } from '@/store/ticketQueueStore';
 
 const CATEGORIES = ['Technical', 'Billing/Refund', 'Account', 'Setup', 'Scanner', 'Bug'];
 
@@ -109,6 +111,19 @@ export default function Dashboard() {
   const { entries } = useHistoryStore();
   const navigate = useNavigate();
   const [tickets, setTickets] = useState<DemoTicket[]>(INITIAL_TICKETS);
+  const { runSingle } = useTicketQueue();
+
+  // Pre-fetch "Review Completed" tickets silently in background on mount
+  // so workflow + draft are ready when the agent clicks into them
+  // silent=true ensures the active ticket on TicketDesk is not disrupted
+  useEffect(() => {
+    const completedIds = INITIAL_TICKETS
+      .filter((t) => t.status === 'completed')
+      .map((t) => t.id);
+    const alreadyFetched = useTicketQueueStore.getState().tickets;
+    const toFetch = completedIds.filter((id) => !alreadyFetched[id]);
+    toFetch.forEach((id) => runSingle(id, { silent: true }));
+  }, []);
 
   const advance = (id: string, currentStatus: PipelineStatus, e: React.MouseEvent) => {
     e.stopPropagation();

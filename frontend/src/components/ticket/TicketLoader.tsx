@@ -1,11 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Search, Zap, Layers } from 'lucide-react';
 import { useTicketQueue } from '@/hooks/useTicketQueue';
 import { useTicketQueueStore } from '@/store/ticketQueueStore';
 import Spinner from '@/components/shared/Spinner';
 
 export default function TicketLoader() {
-  const [input, setInput] = useState('');
+  const { ticketId: paramId } = useParams();
+  const [input, setInput] = useState(paramId ?? '');
+
+  // Sync input when URL param changes (e.g. navigating from Dashboard)
+  useEffect(() => {
+    if (paramId) setInput(paramId);
+  }, [paramId]);
   const { runSingle, runBatch } = useTicketQueue();
   const tickets = useTicketQueueStore((s) => s.tickets);
 

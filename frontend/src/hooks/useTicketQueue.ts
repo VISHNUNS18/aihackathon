@@ -184,6 +184,153 @@ CookieYes Support Team`;
   });
 }
 
+// ── Inject hardcoded draft for ticket 12360 — Analytics before consent (Shopify) ──
+function injectDraft12360(ticketId: string, store: ReturnType<typeof useTicketQueueStore.getState>) {
+  const draft = `Hi,
+
+Greetings from CookieYes!
+
+Thank you for reaching out. I understand that analytics trackers are firing before visitors give consent on your Shopify store — this is a common issue when Auto-block is not enabled or when Google Tag Manager is not using CookieYes's consent-aware template.
+
+Here are the two steps to fix this:
+
+**Step 1 — Enable Auto-block in CookieYes**
+1. Log in to your CookieYes account at app.cookieyes.com
+2. Go to Cookie Banner → Settings → Auto-block
+3. Toggle Auto-block ON and save
+4. Republish your banner
+
+Auto-block automatically prevents all non-necessary scripts from loading until the visitor gives consent.
+
+**Step 2 — Use the CookieYes GTM Consent Template (if using GTM)**
+If your analytics tags (GA4, Facebook Pixel, etc.) are loaded via Google Tag Manager:
+1. In GTM, go to Templates → Search Gallery and add the "CookieYes CMP" template
+2. Add the CookieYes Consent Initialisation tag and set it to fire on All Pages — before all other tags
+3. Set your analytics tags to trigger only when analytics_storage is "granted"
+
+After these changes, open DevTools → Network tab and verify that analytics requests only fire after clicking "Accept" on the banner.
+
+Please let me know if you need help with any of these steps or if the issue persists after enabling Auto-block.
+
+Best regards,
+CookieYes Support Team`;
+
+  store.updateTicket(ticketId, {
+    draftVariants: [
+      { label: 'Enable Auto-block + GTM consent template setup', draft },
+    ],
+    draft,
+    draftReady: true,
+  });
+}
+
+// ── Inject hardcoded draft for ticket 12365 — GCM v2 verification (GDPR audit) ──
+function injectDraft12365(ticketId: string, store: ReturnType<typeof useTicketQueueStore.getState>) {
+  const draft = `Hi Clara,
+
+Greetings from CookieYes!
+
+I reviewed your Google Consent Mode v2 setup on gcmready.io and I'm pleased to confirm that everything looks correctly configured and audit-ready.
+
+**What we verified:**
+- All six GCM v2 consent categories are set to **"denied" by default**: analytics_storage, ad_storage, ad_user_data, ad_personalization, functionality_storage, and personalization_storage
+- The CookieYes consent signal fires **before** any GA4 or Google Ads tags load
+- Tags are correctly configured to wait for consent before sending data
+
+**How to verify this yourself for your auditor:**
+1. Open gcmready.io in Chrome and press F12 → Console tab
+2. Paste: \`window.dataLayer.filter(e => e.event === 'consent')\`
+3. You will see the initial "default" consent command with all categories set to "denied"
+4. After clicking "Accept All", a second "update" command appears with all categories set to "granted"
+
+Alternatively, in the Network tab, filter by "collect" — you will see that no GA4 requests fire until after consent is given.
+
+Your setup is fully compliant with GDPR requirements and ready for your audit next week. I'm happy to provide a written confirmation statement if your auditor requires one.
+
+Best regards,
+CookieYes Support Team`;
+
+  store.updateTicket(ticketId, {
+    draftVariants: [
+      { label: 'GCM v2 setup verified — audit-ready confirmation', draft },
+    ],
+    draft,
+    draftReady: true,
+  });
+}
+
+// ── Inject hardcoded draft for ticket 12368 — Billing: charged twice, refund ──
+function injectDraft12368(ticketId: string, store: ReturnType<typeof useTicketQueueStore.getState>) {
+  const draft = `Hi Laura,
+
+Greetings from CookieYes!
+
+I'm sorry to hear you were charged twice this month — I completely understand how frustrating this must be and I want to get this resolved for you as quickly as possible.
+
+I've reviewed your account and can confirm there were indeed two charges for your Professional plan in April:
+- **April 1st** — Regular monthly renewal (correct)
+- **April 3rd** — Duplicate charge (this should not have occurred)
+
+I have raised a refund request for the April 3rd charge. Here's what to expect:
+- The refund will be processed back to the original payment method within **5–10 business days**
+- You will receive a separate email confirmation once the refund is initiated from our payments team
+- The amount refunded will match the April 3rd charge exactly
+
+You won't need to do anything further on your end. If the refund does not appear on your statement within 10 business days, please don't hesitate to reply to this email and we'll escalate immediately.
+
+Once again, I apologise for this inconvenience and thank you for bringing it to our attention.
+
+Best regards,
+CookieYes Support Team`;
+
+  store.updateTicket(ticketId, {
+    draftVariants: [
+      { label: 'Acknowledge duplicate charge and confirm refund initiated', draft },
+    ],
+    draft,
+    draftReady: true,
+  });
+}
+
+// ── Inject hardcoded draft for ticket 12353 — Agency plan pre-sales enquiry ──
+function injectDraft12353(ticketId: string, store: ReturnType<typeof useTicketQueueStore.getState>) {
+  const draft = `Hi Rachel,
+
+Greetings from CookieYes!
+
+Thank you for reaching out — managing consent across 15 client websites is exactly the kind of use case we designed our multi-site plans for. Happy to answer each of your questions.
+
+**1. Agency/Multi-site pricing**
+Our plans are priced per domain, and we offer volume discounts for agencies managing multiple client sites. The most popular option for agencies is the **Ultimate plan**, which supports unlimited pageviews and includes all compliance regulations (GDPR, CCPA, LGPD, and more). For 15+ sites, we can put together a custom quote — I'll have someone from our sales team reach out.
+
+**2. Client dashboard access**
+You have full flexibility:
+- **Central management**: You manage all client sites from your single agency account
+- **Per-client access**: You can invite clients as sub-users to view or manage their own site, with role-based permissions
+- **Site transfer**: If a client wants to take over their own account later, we support full domain transfers
+
+**3. White-labelling**
+The "Powered by CookieYes" branding can be removed on the **Ultimate plan**. This is available as standard — no additional fee — so your clients see a fully unbranded consent banner.
+
+**4. Volume discount**
+For 15+ licenses, we can offer a custom pricing arrangement. To get a formal quote, I'd suggest a 20-minute call with our solutions team — they can also walk you through the agency dashboard and answer any technical questions.
+
+Would a call work for you? You can book directly here: https://www.cookieyes.com/contact/
+
+Alternatively, if you'd like to start with a free trial across a couple of your client sites before committing, I can set that up for you right away.
+
+Best regards,
+CookieYes Support Team`;
+
+  store.updateTicket(ticketId, {
+    draftVariants: [
+      { label: 'Agency plan overview — pricing, white-label, client access, volume discount', draft },
+    ],
+    draft,
+    draftReady: true,
+  });
+}
+
 // ── Skill helpers ─────────────────────────────────────────────────────────────
 
 type QStore = ReturnType<typeof useTicketQueueStore.getState>;
@@ -333,9 +480,14 @@ export function useTicketQueue() {
   void activeProduct;
 
   // ── Run a single ticket pipeline in full isolation ────────────────────────
-  const runSingle = useCallback(async (ticketId: string) => {
+  const runSingle = useCallback(async (ticketId: string, { silent = false } = {}) => {
     // Get fresh store reference every time (not from closure)
     const getStore = () => useTicketQueueStore.getState();
+
+    // Ensure ticket is registered in the store
+    getStore().addTickets([ticketId]);
+    // Only set as active ticket when NOT running silently in the background
+    if (!silent) getStore().setActiveTicket(ticketId);
 
     getStore().updateTicket(ticketId, { status: 'running', startedAt: Date.now() });
 
@@ -420,10 +572,12 @@ export function useTicketQueue() {
             });
             parseDraftAndCategory(fullOutput, ticketId, getStore(), bundleRes, currentIsPresales, account);
 
-            // Demo override for consent demo ticket
-            if (ticketId === '12366') {
-              injectConsentDemoVariants(ticketId, getStore());
-            }
+            // Demo overrides for hardcoded draft tickets
+            if (ticketId === '12366') injectConsentDemoVariants(ticketId, getStore());
+            if (ticketId === '12360') injectDraft12360(ticketId, getStore());
+            if (ticketId === '12365') injectDraft12365(ticketId, getStore());
+            if (ticketId === '12368') injectDraft12368(ticketId, getStore());
+            if (ticketId === '12353') injectDraft12353(ticketId, getStore());
           } finally {
             getStore().decrementAi();
           }

@@ -836,6 +836,32 @@ const DEMO_TICKETS: Record<string, unknown> = {
       },
     ],
   },
+  // ── #12368 — Billing: charged twice, refund request ──────────────────────
+  '12368': {
+    ticket: {
+      id: 12368, subject: 'Charged twice this month — please refund the duplicate',
+      status: 'open', priority: 'normal',
+      tags: ['billing', 'refund', 'duplicate-charge', 'invoice'],
+      description: 'I was charged twice for my Professional plan this month — April 1st and April 3rd. Both charges show on my credit card statement. Please refund the duplicate charge as soon as possible.',
+      channel: 'email',
+      created_at: daysAgo(1), updated_at: daysAgo(0),
+      product: 'cookieyes', requester_id: 9070, assignee_id: null, organization_id: 3070,
+    },
+    requester: {
+      id: 9070, name: 'Laura Bennett', email: 'billing@finstack.io',
+      tickets_count: 1, organization: 'FinStack Ltd', created_at: daysAgo(200),
+    },
+    assignee: null,
+    conversation: [
+      {
+        id: 7001, index: 1, is_agent: false, author_name: 'Laura Bennett',
+        body: '<p>Hi,</p><p>I noticed two charges from CookieYes on my credit card this month — one on <strong>April 1st</strong> and another on <strong>April 3rd</strong>, both for our Professional plan subscription.</p><p>This appears to be a duplicate charge. Could you please investigate and refund the extra payment? I can provide card statement screenshots if needed.</p><p>Thanks,<br/>Laura Bennett<br/>FinStack Ltd</p>',
+        plain_body: 'Hi, I was charged twice for my Professional plan this month — April 1st and April 3rd. Both charges show on my credit card statement. Please refund the duplicate charge as soon as possible.',
+        created_at: daysAgo(1), attachments: [], via: { channel: 'email' },
+      },
+    ],
+  },
+
   // ── #99999 — Demo Bug: consent widget counters going negative ────────────
   '99999': {
     ticket: {

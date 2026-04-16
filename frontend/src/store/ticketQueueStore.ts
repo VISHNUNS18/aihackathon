@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { TicketBundle } from '@/types/ticket';
 import type { Account } from '@/types/account';
 import type { StripeCustomer } from '@/types/stripe';
@@ -90,63 +91,87 @@ interface TicketQueueStore {
   clearAll: () => void;
 }
 
-export const useTicketQueueStore = create<TicketQueueStore>((set) => ({
-  tickets: {},
-  activeTicketId: null,
-  maxConcurrent: 3,
-  runningAiCount: 0,
+export const useTicketQueueStore = create<TicketQueueStore>()(
+  persist(
+    (set) => ({
+      tickets: {},
+      activeTicketId: null,
+      maxConcurrent: 3,
+      runningAiCount: 0,
 
-  addTickets: (ids) =>
-    set((s) => {
-      const incoming: Record<string, PerTicketState> = {};
-      for (const id of ids) {
-        // Don't re-initialise a ticket already in progress
-        if (!s.tickets[id]) {
-          incoming[id] = makeInitialTicket(id);
+      addTickets: (ids) =>
+        set((s) => {
+          const incoming: Record<string, PerTicketState> = {};
+          for (const id of ids) {
+            // Don't re-initialise a ticket already in progress
+            if (!s.tickets[id]) {
+              incoming[id] = makeInitialTicket(id);
+            }
+          }
+          return { tickets: { ...s.tickets, ...incoming } };
+        }),
+
+      setActiveTicket: (id) => set({ activeTicketId: id }),
+
+      updateTicket: (id, patch) =>
+        set((s) => {
+          const existing = s.tickets[id];
+          if (!existing) return s;
+          return {
+            tickets: {
+              ...s.tickets,
+              [id]: { ...existing, ...patch },
+            },
+          };
+        }),
+
+      // Optimised stream append — avoids spreading entire patch object on every chunk
+      appendTicketStream: (id, chunk) =>
+        set((s) => {
+          const existing = s.tickets[id];
+          if (!existing) return s;
+          return {
+            tickets: {
+              ...s.tickets,
+              [id]: { ...existing, streamOutput: existing.streamOutput + chunk },
+            },
+          };
+        }),
+
+      removeTicket: (id) =>
+        set((s) => {
+          const { [id]: _, ...rest } = s.tickets;
+          const activeTicketId = s.activeTicketId === id
+            ? (Object.keys(rest)[0] ?? null)
+            : s.activeTicketId;
+          return { tickets: rest, activeTicketId };
+        }),
+
+      incrementAi: () => set((s) => ({ runningAiCount: s.runningAiCount + 1 })),
+      decrementAi: () => set((s) => ({ runningAiCount: Math.max(0, s.runningAiCount - 1) })),
+      setMaxConcurrent: (n) => set({ maxConcurrent: Math.min(5, Math.max(1, n)) }),
+
+      clearAll: () => set({ tickets: {}, activeTicketId: null, runningAiCount: 0 }),
+    }),
+    {
+      name: 'ticket-queue-store',
+      // Only persist completed ticket data — skip runtime semaphore counters
+      partialize: (state) => ({
+        tickets: state.tickets,
+        activeTicketId: state.activeTicketId,
+      }),
+      // On rehydration: any ticket still in "running" state was interrupted — reset to error
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        const fixed: Record<string, PerTicketState> = {};
+        for (const [id, t] of Object.entries(state.tickets)) {
+          fixed[id] = t.status === 'running'
+            ? { ...t, status: 'error', error: 'Session interrupted — re-run to reload.' }
+            : t;
         }
-      }
-      return { tickets: { ...s.tickets, ...incoming } };
-    }),
-
-  setActiveTicket: (id) => set({ activeTicketId: id }),
-
-  updateTicket: (id, patch) =>
-    set((s) => {
-      const existing = s.tickets[id];
-      if (!existing) return s;
-      return {
-        tickets: {
-          ...s.tickets,
-          [id]: { ...existing, ...patch },
-        },
-      };
-    }),
-
-  // Optimised stream append — avoids spreading entire patch object on every chunk
-  appendTicketStream: (id, chunk) =>
-    set((s) => {
-      const existing = s.tickets[id];
-      if (!existing) return s;
-      return {
-        tickets: {
-          ...s.tickets,
-          [id]: { ...existing, streamOutput: existing.streamOutput + chunk },
-        },
-      };
-    }),
-
-  removeTicket: (id) =>
-    set((s) => {
-      const { [id]: _, ...rest } = s.tickets;
-      const activeTicketId = s.activeTicketId === id
-        ? (Object.keys(rest)[0] ?? null)
-        : s.activeTicketId;
-      return { tickets: rest, activeTicketId };
-    }),
-
-  incrementAi: () => set((s) => ({ runningAiCount: s.runningAiCount + 1 })),
-  decrementAi: () => set((s) => ({ runningAiCount: Math.max(0, s.runningAiCount - 1) })),
-  setMaxConcurrent: (n) => set({ maxConcurrent: Math.min(5, Math.max(1, n)) }),
-
-  clearAll: () => set({ tickets: {}, activeTicketId: null, runningAiCount: 0 }),
-}));
+        state.tickets = fixed;
+        state.runningAiCount = 0;
+      },
+    }
+  )
+);
