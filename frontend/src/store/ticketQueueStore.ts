@@ -11,6 +11,16 @@ import type { SkillStatus, DraftVariant } from '@/store/workflowStore';
 
 // ── Per-ticket isolated state ─────────────────────────────────────────────────
 
+export interface RelatedTicket {
+  id: number;
+  subject: string;
+  status: string;
+  created_at: string;
+  tags: string[];
+  requester_name: string;
+  match_reason: 'same_customer' | 'same_topic';
+}
+
 export interface PerTicketState {
   ticketId: string;
   status: 'queued' | 'running' | 'done' | 'error';
@@ -23,6 +33,7 @@ export interface PerTicketState {
   jira: JiraIssue | null;
   docResults: DocArticle[];
   certResult: CertSearchResult | null;
+  relatedTickets: RelatedTicket[];
 
   // Flags
   isCertRequest: boolean;
@@ -56,6 +67,7 @@ const makeInitialTicket = (ticketId: string): PerTicketState => ({
   jira: null,
   docResults: [],
   certResult: null,
+  relatedTickets: [],
   isCertRequest: false,
   infoGatheringMode: false,
   isPresales: false,

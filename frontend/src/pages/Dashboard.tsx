@@ -21,6 +21,7 @@ interface DemoTicket {
 
 const INITIAL_TICKETS: DemoTicket[] = [
   // New
+  { id: '99999', subject: 'Cookie consent widget counts going negative — acmestore.io',   tag: 'Bug',          priority: 'High',   status: 'new' },
   { id: '12367', subject: 'Cookie banner not showing on homepage',                        tag: 'Technical',    priority: 'High',   status: 'new' },
   { id: '12345', subject: 'Banner disappeared after WP Rocket update',                    tag: 'Technical',    priority: 'High',   status: 'new' },
   { id: '12363', subject: 'Banner loads 3–4 seconds late — Cloudflare Rocket Loader',     tag: 'Technical',    priority: 'High',   status: 'new' },
@@ -49,6 +50,7 @@ const TAG_STYLES: Record<string, string> = {
   'Certification': 'bg-amber-50 text-amber-700 border-amber-100',
   'Legal':         'bg-purple-50 text-purple-600 border-purple-100',
   'Pre-sales':     'bg-green-50 text-green-700 border-green-100',
+  'Bug':           'bg-rose-50 text-rose-600 border-rose-100',
 };
 
 const COLUMNS: { key: PipelineStatus; label: string; icon: React.ReactNode; headerColor: string; dotColor: string; countColor: string }[] = [
@@ -112,6 +114,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState<DemoTicket[]>(INITIAL_TICKETS);
   const { runSingle } = useTicketQueue();
+  const queueTickets = useTicketQueueStore((s) => s.tickets);
 
   // Pre-fetch "Review Completed" tickets silently in background on mount
   // so workflow + draft are ready when the agent clicks into them
@@ -130,6 +133,14 @@ export default function Dashboard() {
     const next = NEXT_STATUS[currentStatus];
     if (!next) return;
     setTickets((prev) => prev.map((t) => t.id === id ? { ...t, status: next } : t));
+    // When a ticket moves into "Review Completed", kick off silent background
+    // pipeline so the draft is ready when the agent clicks into it
+    if (next === 'completed') {
+      const existing = useTicketQueueStore.getState().tickets[id];
+      if (!existing || (existing.status !== 'done' && existing.status !== 'running')) {
+        runSingle(id, { silent: true });
+      }
+    }
   };
 
   return (
@@ -151,7 +162,15 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-4 divide-x divide-gray-100">
           {COLUMNS.map((col) => {
-            const colTickets = tickets.filter((t) => t.status === col.key);
+            // A "completed" ticket whose draft pipeline is still running belongs
+            // in "Analysis In Progress" until the draft is stored and ready.
+            const colTickets = tickets.filter((t) => {
+              const effectiveStatus =
+                t.status === 'completed' && queueTickets[t.id]?.status === 'running'
+                  ? 'in_progress'
+                  : t.status;
+              return effectiveStatus === col.key;
+            });
             return (
               <div key={col.key} className={`flex flex-col border-t-2 ${col.headerColor}`}>
                 {/* Column header */}
@@ -198,9 +217,39 @@ export default function Dashboard() {
                       <p className="text-[11px] text-gray-700 leading-snug line-clamp-2 mb-2">{t.subject}</p>
 
                       {/* Tag */}
-                      <span className={`inline-block text-[10px] font-medium border px-1.5 py-0.5 rounded-full mb-2.5 ${TAG_STYLES[t.tag] ?? 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                      <span className={`inline-block text-[10px] font-medium border px-1.5 py-0.5 rounded-full mb-2 ${TAG_STYLES[t.tag] ?? 'bg-gray-50 text-gray-500 border-gray-100'}`}>
                         {t.tag}
                       </span>
+
+                      {/* Draft status — only on Review Completed cards */}
+                      {col.key === 'completed' && (() => {
+                        const qt = queueTickets[t.id];
+                        if (qt?.draftReady) {
+                          const preview = (qt.draft ?? '')
+                            .replace(/\*\*/g, '')
+                            .replace(/#+\s/g, '')
+                            .replace(/\n+/g, ' ')
+                            .trim()
+                            .slice(0, 110);
+                          return (
+                            <div className="mb-2 p-2 bg-emerald-50 border border-emerald-100 rounded-lg">
+                              <div className="flex items-center gap-1 mb-1">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                                <span className="text-[10px] font-semibold text-emerald-600">Draft ready</span>
+                                {qt.category && (
+                                  <span className="ml-auto text-[9px] font-medium text-emerald-500 bg-emerald-100 px-1.5 py-0.5 rounded-full">{qt.category}</span>
+                                )}
+                              </div>
+                              {preview && (
+                                <p className="text-[10px] text-gray-500 line-clamp-2 leading-relaxed">
+                                  {preview}{preview.length >= 110 ? '…' : ''}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
 
                       {/* Action button */}
                       {NEXT_STATUS[t.status] && (

@@ -79,6 +79,7 @@ export default function JiraModal({ open, onClose }: JiraModalProps) {
   const { raiseIssue, loading, error } = useJira();
   const [autoFix, setAutoFix]   = useState<AutoFixResult | null>(null);
   const [fixing, setFixing]     = useState(false);
+  const [fixError, setFixError] = useState<string | null>(null);
   const isDemoBug = String(ticketId) === DEMO_BUG_TICKET;
 
   const ticketPriority = bundle?.ticket?.priority ?? 'normal';
@@ -117,6 +118,7 @@ export default function JiraModal({ open, onClose }: JiraModalProps) {
       setIssueType(isDemoBug ? 'Bug' : 'Bug');
       setPriority(ticketPriority);
       setAutoFix(null);
+      setFixError(null);
     }
   }, [open, ticketId]);
 
@@ -141,8 +143,9 @@ export default function JiraModal({ open, onClose }: JiraModalProps) {
       try {
         const { data } = await api.post('/api/jira/apply-fix', { jiraKey: issue.key });
         setAutoFix(data);
-      } catch {
-        // Non-fatal — fix generation failed silently
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Fix generation failed';
+        setFixError(msg);
       } finally {
         setFixing(false);
       }
@@ -176,12 +179,15 @@ export default function JiraModal({ open, onClose }: JiraModalProps) {
               <div className={`flex items-start gap-3 p-4 rounded-xl border ${
                 fixing    ? 'bg-blue-50 border-blue-200' :
                 autoFix   ? 'bg-purple-50 border-purple-200' :
+                fixError  ? 'bg-red-50 border-red-200' :
                             'bg-gray-50 border-gray-200'
               }`}>
                 {fixing ? (
                   <Loader2 className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5 animate-spin" />
                 ) : autoFix ? (
                   <Sparkles className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                ) : fixError ? (
+                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                 ) : (
                   <Sparkles className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
                 )}
@@ -205,7 +211,10 @@ export default function JiraModal({ open, onClose }: JiraModalProps) {
                       )}
                     </>
                   )}
-                  {!fixing && !autoFix && (
+                  {!fixing && !autoFix && fixError && (
+                    <p className="text-xs text-red-600">{fixError}</p>
+                  )}
+                  {!fixing && !autoFix && !fixError && (
                     <p className="text-sm text-gray-500">Fix generation skipped</p>
                   )}
                 </div>

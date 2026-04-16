@@ -920,6 +920,124 @@ const DEMO_TICKETS: Record<string, unknown> = {
   },
 };
 
+// ── Related ticket shape ──────────────────────────────────────────────────────
+interface RelatedTicket {
+  id: number;
+  subject: string;
+  status: string;
+  created_at: string;
+  tags: string[];
+  requester_name: string;
+  match_reason: 'same_customer' | 'same_topic';
+}
+
+// ── GET /api/ticket/:id/related ───────────────────────────────────────────────
+// Returns up to 5 related tickets:
+//   - same_customer: older tickets from the same requester email
+//   - same_topic:    tickets whose tags overlap with the current ticket's tags
+ticketRouter.get('/:id/related', async (req, res) => {
+  const { id } = req.params;
+  const { email, tags: rawTags } = req.query;
+  const requesterEmail = (email as string | undefined)?.toLowerCase() ?? '';
+  const currentTags: string[] = Array.isArray(rawTags)
+    ? (rawTags as string[])
+    : typeof rawTags === 'string' ? rawTags.split(',').map((t) => t.trim()).filter(Boolean) : [];
+
+  // ── Demo mode ──────────────────────────────────────────────────────────────
+  const results: RelatedTicket[] = [];
+
+  for (const [demoId, bundle] of Object.entries(DEMO_TICKETS)) {
+    if (demoId === id) continue; // skip the ticket being viewed
+
+    const b = bundle as {
+      ticket: { id: number; subject: string; status: string; created_at: string; tags: string[] };
+      requester: { name: string; email: string };
+    };
+
+    const isCustomer =
+      requesterEmail &&
+      b.requester?.email?.toLowerCase() === requesterEmail;
+
+    const sharedTags = currentTags.filter((t) =>
+      (b.ticket.tags || []).some((dt: string) => dt.includes(t) || t.includes(dt))
+    );
+    const isTopic = sharedTags.length >= 1;
+
+    if (!isCustomer && !isTopic) continue;
+
+    results.push({
+      id: b.ticket.id,
+      subject: b.ticket.subject,
+      status: b.ticket.status,
+      created_at: b.ticket.created_at,
+      tags: b.ticket.tags || [],
+      requester_name: b.requester?.name ?? '',
+      match_reason: isCustomer ? 'same_customer' : 'same_topic',
+    });
+  }
+
+  // Sort: same_customer first, then same_topic; limit to 5
+  results.sort((a, b) => {
+    if (a.match_reason === b.match_reason) return 0;
+    return a.match_reason === 'same_customer' ? -1 : 1;
+  });
+
+  // If Zendesk credentials are available, try live lookup (falls back to demo results)
+  const sub = process.env.ZENDESK_SUBDOMAIN;
+  if (sub && requesterEmail) {
+    try {
+      const base = `https://${sub}.zendesk.com/api/v2`;
+      const headers = { Authorization: zendeskAuth(), 'Content-Type': 'application/json' };
+
+      // Fetch by email first — prior tickets from same customer
+      const [byEmailRes, byTagsRes] = await Promise.allSettled([
+        axios.get(
+          `${base}/search.json?query=requester:${encodeURIComponent(requesterEmail)}+type:ticket+-id:${id}&sort_by=created_at&sort_order=desc&per_page=5`,
+          { headers }
+        ),
+        currentTags.length > 0
+          ? axios.get(
+              `${base}/search.json?query=tags:${currentTags[0]}+type:ticket+-id:${id}&sort_by=created_at&sort_order=desc&per_page=5`,
+              { headers }
+            )
+          : Promise.resolve({ data: { results: [] } }),
+      ]);
+
+      const liveResults: RelatedTicket[] = [];
+      const seen = new Set<number>();
+
+      const addLive = (items: unknown[], reason: 'same_customer' | 'same_topic') => {
+        for (const raw of items) {
+          const t = raw as Record<string, unknown>;
+          if (seen.has(t['id'] as number)) continue;
+          seen.add(t['id'] as number);
+          liveResults.push({
+            id: t['id'] as number,
+            subject: t['subject'] as string,
+            status: (t['status'] as string) ?? 'open',
+            created_at: t['created_at'] as string,
+            tags: (t['tags'] as string[]) ?? [],
+            requester_name: '',
+            match_reason: reason,
+          });
+        }
+      };
+
+      if (byEmailRes.status === 'fulfilled') addLive(byEmailRes.value.data.results ?? [], 'same_customer');
+      if (byTagsRes.status === 'fulfilled')  addLive((byTagsRes as PromiseFulfilledResult<{ data: { results: unknown[] } }>).value.data.results ?? [], 'same_topic');
+
+      if (liveResults.length > 0) {
+        res.json({ related: liveResults.slice(0, 5) });
+        return;
+      }
+    } catch {
+      // Fall through to demo results
+    }
+  }
+
+  res.json({ related: results.slice(0, 5) });
+});
+
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 ticketRouter.get('/:id', async (req, res) => {

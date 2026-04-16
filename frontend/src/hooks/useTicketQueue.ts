@@ -26,6 +26,7 @@ async function streamAnalysis(
     stripeData: unknown;
     debugData: unknown;
     docResults: DocArticle[];
+    relatedTickets: unknown[];
     accountMissing: boolean;
     isPresales: boolean;
     tone: ToneStyle;
@@ -513,6 +514,16 @@ export function useTicketQueue() {
 
       getStore().updateTicket(ticketId, { isCertRequest: isCert });
 
+      // ── Skill 1b — Related tickets (fire-and-forget, non-blocking) ────────
+      const requesterEmail = bundleRes.requester?.email ?? '';
+      api.get(
+        `/api/ticket/${ticketId}/related?email=${encodeURIComponent(requesterEmail)}&tags=${encodeURIComponent((ticket.tags || []).join(','))}`
+      ).then(({ data }) => {
+        if (data.related?.length) {
+          getStore().updateTicket(ticketId, { relatedTickets: data.related });
+        }
+      }).catch(() => { /* non-fatal */ });
+
       // ── Stage 2 — Skill 2 + Skill 5 in PARALLEL ────────────────────────
       // Skill 5 (Docs) only needs ticket data — no need to wait for account
       const [account] = await Promise.all([
@@ -552,6 +563,7 @@ export function useTicketQueue() {
           try {
             const currentTicket = getStore().tickets[ticketId];
             const docResults = currentTicket?.docResults ?? [];
+            const relatedTickets = currentTicket?.relatedTickets ?? [];
             const currentIsPresales = currentTicket?.isPresales ?? isPresales;
             const fullOutput = await streamAnalysis(
               {
@@ -560,6 +572,7 @@ export function useTicketQueue() {
                 stripeData,
                 debugData,
                 docResults,
+                relatedTickets,
                 accountMissing: account === null,
                 isPresales: currentIsPresales,
                 tone,
@@ -664,6 +677,7 @@ export function useTicketQueue() {
             stripeData: current.stripe,
             debugData: current.debug,
             docResults: current.docResults,
+            relatedTickets: current.relatedTickets ?? [],
             accountMissing: current.account === null,
             isPresales: current.isPresales,
             tone: effectiveTone,
